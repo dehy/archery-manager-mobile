@@ -41,7 +41,7 @@ describe('api client', () => {
     const fetchMock = jest.fn().mockResolvedValue(json(200, { ok: true }));
     const { client } = setup(valid, fetchMock);
 
-    await expect(client.request('/api/v1/me')).resolves.toEqual({ ok: true });
+    await expect(client.request('/me')).resolves.toEqual({ ok: true });
 
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe('http://api/api/v1/me');
@@ -51,12 +51,12 @@ describe('api client', () => {
   it('refreshes once on 401 and retries with the new token', async () => {
     const fetchMock = jest
       .fn()
-      .mockResolvedValueOnce(json(401, { error: 'unauthorized', message: 'expired' }))
+      .mockResolvedValueOnce(json(401, { error: 'invalid_token', message: 'expired' }))
       .mockResolvedValueOnce(json(200, refreshed))
       .mockResolvedValueOnce(json(200, { ok: true }));
     const { client, getTokens } = setup(valid, fetchMock);
 
-    await expect(client.request('/api/v1/me')).resolves.toEqual({ ok: true });
+    await expect(client.request('/me')).resolves.toEqual({ ok: true });
 
     expect(fetchMock.mock.calls[2][1].headers.Authorization).toBe('Bearer a2');
     expect(getTokens()?.refreshToken).toBe('r2');
@@ -69,7 +69,7 @@ describe('api client', () => {
     );
     const { client } = setup(expired, fetchMock);
 
-    await Promise.all([client.request('/api/v1/a'), client.request('/api/v1/b')]);
+    await Promise.all([client.request('/a'), client.request('/b')]);
 
     const refreshCalls = fetchMock.mock.calls.filter(([u]) => u.endsWith('/auth/refresh'));
     expect(refreshCalls).toHaveLength(1);
@@ -78,16 +78,68 @@ describe('api client', () => {
   it('ends the session when the refresh token is rejected', async () => {
     const fetchMock = jest
       .fn()
-      .mockResolvedValueOnce(json(401, { error: 'unauthorized', message: 'x' }))
+      .mockResolvedValueOnce(json(401, { error: 'invalid_token', message: 'x' }))
       .mockResolvedValueOnce(json(401, { error: 'invalid_refresh_token', message: 'x' }));
     const { client, onSessionExpired, getTokens } = setup(valid, fetchMock);
 
-    await expect(client.request('/api/v1/me')).rejects.toMatchObject({
+    await expect(client.request('/me')).rejects.toMatchObject({
       code: 'invalid_refresh_token',
     });
 
     expect(onSessionExpired).toHaveBeenCalled();
     expect(getTokens()).toBeNull();
+  });
+
+  it('keeps the tokens when the account is locked during a refresh', async () => {
+    const expired = { ...valid, accessTokenExpiresAt: NOW };
+    const fetchMock = jest
+      .fn()
+      .mockResolvedValue(json(401, { error: 'account_locked', message: 'locked' }));
+    const { client, onSessionExpired, getTokens } = setup(expired, fetchMock);
+
+    await expect(client.request('/me')).rejects.toMatchObject({ code: 'account_locked' });
+
+    expect(onSessionExpired).not.toHaveBeenCalled();
+    expect(getTokens()).toEqual(expired);
+  });
+
+  it('does not refresh on a 401 that is not invalid_token', async () => {
+    const fetchMock = jest
+      .fn()
+      .mockResolvedValue(json(401, { error: 'account_locked', message: 'locked' }));
+    const { client } = setup(valid, fetchMock);
+
+    await expect(client.request('/me')).rejects.toMatchObject({ code: 'account_locked' });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('reuses tokens rotated by another request instead of spending the refresh token twice', async () => {
+    let release!: (r: Response) => void;
+    const slow = new Promise<Response>((resolve) => (release = resolve));
+    const fetchMock = jest.fn(async (url: string, init: { headers: Record<string, string> }) => {
+      if (url.endsWith('/auth/refresh')) return json(200, refreshed);
+      if (init.headers.Authorization === 'Bearer a1' && url.endsWith('/slow')) return slow;
+      if (init.headers.Authorization === 'Bearer a1')
+        return json(401, { error: 'invalid_token', message: 'x' });
+      return json(200, { ok: true });
+    });
+    const { client } = setup(valid, fetchMock as unknown as jest.Mock);
+
+    const first = client.request('/slow');
+    await client.request('/other'); // 401 with a1, refreshes once, retries with a2
+    release(json(401, { error: 'invalid_token', message: 'x' }));
+    await first; // 401 with a1, but tokens already rotated: retries with a2, no second refresh
+
+    const refreshCalls = fetchMock.mock.calls.filter(([u]) => u.endsWith('/auth/refresh'));
+    expect(refreshCalls).toHaveLength(1);
+  });
+
+  it('builds file URLs from the host root and authenticates file requests', () => {
+    const { client } = setup(valid, jest.fn());
+    expect(client.fileUrl('/api/v1/licensees/1/picture')).toBe(
+      'http://api/api/v1/licensees/1/picture',
+    );
+    expect(client.fileHeaders()).toMatchObject({ Authorization: 'Bearer a1', 'X-Licensee': '123' });
   });
 
   it('surfaces the server error body and Retry-After', async () => {
@@ -99,7 +151,7 @@ describe('api client', () => {
     const { client } = setup(null, fetchMock);
 
     const error = await client
-      .request('/api/v1/auth/login', { method: 'POST', body: {}, auth: false })
+      .request('/auth/login', { method: 'POST', body: {}, auth: false })
       .catch((e) => e);
 
     expect(error).toBeInstanceOf(ApiError);

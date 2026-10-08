@@ -1,3 +1,4 @@
+import * as Device from 'expo-device';
 import { create } from 'zustand';
 
 import { createApiClient, toTokens } from '@/api/client';
@@ -29,9 +30,9 @@ export const useSession = create<SessionState>((set, get) => ({
   },
 
   async signIn(email, password) {
-    const response = await api.request<TokenResponse>('/api/v1/auth/login', {
+    const response = await api.request<TokenResponse>('/auth/login', {
       method: 'POST',
-      body: { email, password },
+      body: { email, password, device_name: Device.deviceName ?? undefined },
       auth: false,
     });
     const tokens = toTokens(response, Date.now());
@@ -46,7 +47,7 @@ export const useSession = create<SessionState>((set, get) => ({
     set({ tokens: null, status: 'signedOut', licensee: null, season: null });
     if (!refreshToken) return;
     try {
-      await api.request('/api/v1/auth/logout', {
+      await api.request('/auth/logout', {
         method: 'POST',
         body: { refresh_token: refreshToken },
         auth: false,
@@ -74,4 +75,4 @@ export const api = createApiClient({
   },
 });
 
-export const fetchMe = () => api.request<MeResponse>('/api/v1/me');
+export const fetchMe = () => api.request<MeResponse>('/me');

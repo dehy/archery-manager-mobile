@@ -4,7 +4,10 @@ import type { Tokens, TokenResponse } from './types';
 /** Refresh slightly before expiry so a request doesn't race the deadline. */
 const EXPIRY_MARGIN_MS = 15_000;
 
+const API_PREFIX = '/api/v1';
+
 export type ApiClientDeps = {
+  /** Origin of the backend, without trailing slash and without /api/v1. */
   baseUrl: string;
   getTokens: () => Tokens | null;
   /** Persist new tokens, or null once the session is over. */
@@ -47,7 +50,7 @@ export function createApiClient(deps: ApiClientDeps) {
 
     let response: Response;
     try {
-      response = await doFetch(`${deps.baseUrl}${path}`, {
+      response = await doFetch(`${deps.baseUrl}${API_PREFIX}${path}`, {
         method: options.method ?? 'GET',
         headers,
         body: options.body === undefined ? undefined : JSON.stringify(options.body),
@@ -83,7 +86,7 @@ export function createApiClient(deps: ApiClientDeps) {
   function refresh(refreshToken: string): Promise<Tokens> {
     refreshing ??= (async () => {
       try {
-        const response = await send<TokenResponse>('/api/v1/auth/refresh', {
+        const response = await send<TokenResponse>('/auth/refresh', {
           method: 'POST',
           body: { refresh_token: refreshToken },
         });
@@ -91,7 +94,9 @@ export function createApiClient(deps: ApiClientDeps) {
         await deps.setTokens(tokens);
         return tokens;
       } catch (error) {
-        if (error instanceof ApiError && error.status === 401) {
+        // Only a dead refresh token ends the session. A locked account keeps its server-side
+        // session, so the tokens stay and the caller shows the message.
+        if (error instanceof ApiError && error.code === 'invalid_refresh_token') {
           await deps.setTokens(null);
           deps.onSessionExpired();
         }
@@ -115,14 +120,32 @@ export function createApiClient(deps: ApiClientDeps) {
     try {
       return await send<T>(path, options, tokens.accessToken);
     } catch (error) {
-      if (!(error instanceof ApiError) || error.status !== 401) throw error;
-      // Access token rejected (revoked or clock skew): rotate once and retry.
-      const fresh = await refresh(deps.getTokens()?.refreshToken ?? tokens.refreshToken);
+      if (!(error instanceof ApiError) || error.code !== 'invalid_token') throw error;
+      // Another request may have rotated the tokens meanwhile: refresh tokens are single-use,
+      // so reuse the newer pair instead of spending the current refresh token again.
+      const current = deps.getTokens();
+      if (!current) throw error;
+      const fresh =
+        current.accessToken !== tokens.accessToken ? current : await refresh(current.refreshToken);
       return send<T>(path, options, fresh.accessToken);
     }
   }
 
-  return { request, refresh };
+  /** File URLs from the API (`picture_url`, attachment `url`) are paths from the host root. */
+  function fileUrl(path: string): string {
+    return /^https?:\/\//.test(path) ? path : `${deps.baseUrl}${path}`;
+  }
+
+  /** Headers to send with a file request (images, downloads). */
+  function fileHeaders(): Record<string, string> {
+    const tokens = deps.getTokens();
+    return {
+      ...deps.getContextHeaders?.(),
+      ...(tokens ? { Authorization: `Bearer ${tokens.accessToken}` } : {}),
+    };
+  }
+
+  return { request, refresh, fileUrl, fileHeaders };
 }
 
 export type ApiClient = ReturnType<typeof createApiClient>;
