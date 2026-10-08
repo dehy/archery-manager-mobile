@@ -24,7 +24,14 @@ const config: ExpoConfig = {
     predictiveBackGestureEnabled: false,
   },
   web: { favicon: './assets/favicon.png' },
-  plugins: ['expo-router', 'expo-secure-store', 'expo-localization'],
+  plugins: [
+    'expo-router',
+    'expo-secure-store',
+    'expo-localization',
+    // Xcode 27 / iOS 27 SDK refuses to launch apps without the UIScene life cycle. Opt-in on
+    // SDK 57 (needs expo >= 57.0.23); SDK 58 enables it by default, then remove this entry.
+    ['expo-build-properties', { ios: { enableSceneSupport: true } }],
+  ],
   experiments: { typedRoutes: false },
 };
 
