@@ -1,0 +1,102 @@
+import { View } from 'react-native';
+
+import type { HomeResponse } from '@/api/types';
+import { applicationStatusLabel, eventTypeLabel, participationLabel } from '@/features/labels';
+import { t } from '@/i18n';
+import { Message, Row, Section, Text, spacing } from '@/ui';
+
+import { formatEventWhen, formatResultTarget, formatSeason } from './format';
+
+type Home = HomeResponse;
+
+export function HomeContent({ home }: { home: Home }) {
+  switch (home.state) {
+    case 'blank_account':
+      return <Message title={t('home.blankTitle')} body={t('home.blankBody')} />;
+    case 'no_license':
+      return <NoLicense home={home} />;
+    case 'dashboard':
+      return <Dashboard home={home} />;
+  }
+}
+
+function Heading({ home }: { home: Exclude<Home, { state: 'blank_account' }> }) {
+  return (
+    <View style={{ paddingHorizontal: 16, paddingBottom: spacing.md, gap: 2 }}>
+      <Text variant="title" style={{ fontSize: 22 }}>
+        {t('home.greeting', { name: home.licensee.firstname ?? '' }).trim()}
+      </Text>
+      <Text variant="muted">{t('home.season', { season: formatSeason(home.season) })}</Text>
+    </View>
+  );
+}
+
+function NoLicense({ home }: { home: Extract<Home, { state: 'no_license' }> }) {
+  return (
+    <>
+      <Heading home={home} />
+      <Message title={t('home.noLicenseTitle', { season: formatSeason(home.season) })} />
+      <Section title={t('home.applications')}>
+        {home.applications.length === 0 ? (
+          <Row title={t('home.noApplications')} last />
+        ) : (
+          home.applications.map((a, i) => (
+            <Row
+              key={a.id}
+              testID={`application-${a.id}`}
+              title={a.club?.name ?? ''}
+              subtitle={a.admin_message}
+              caption={applicationStatusLabel(a.status)}
+              last={i === home.applications.length - 1}
+            />
+          ))
+        )}
+      </Section>
+    </>
+  );
+}
+
+function Dashboard({ home }: { home: Extract<Home, { state: 'dashboard' }> }) {
+  return (
+    <>
+      <Heading home={home} />
+      <Section title={t('home.nextEvents')}>
+        {home.next_events.length === 0 ? (
+          <Row title={t('home.noEvents')} last />
+        ) : (
+          home.next_events.map((e, i) => (
+            <Row
+              key={e.id}
+              testID={`event-${e.id}`}
+              title={e.title}
+              subtitle={[
+                formatEventWhen(e.starts_at, e.ends_at, e.all_day, t('home.allDay')),
+                e.address,
+              ]
+                .filter(Boolean)
+                .join('\n')}
+              caption={`${eventTypeLabel(e.type)} · ${participationLabel(e.type, e.participation_state)} · ${t('home.participants', { count: e.participants_count })}`}
+              last={i === home.next_events.length - 1}
+            />
+          ))
+        )}
+      </Section>
+      <Section title={t('home.lastResults')}>
+        {home.last_results.length === 0 ? (
+          <Row title={t('home.noResults')} last />
+        ) : (
+          home.last_results.map((r, i) => (
+            <Row
+              key={r.id}
+              testID={`result-${r.id}`}
+              title={r.event?.title ?? ''}
+              subtitle={formatResultTarget(r.distance, r.target_type?.label ?? null, r.target_size)}
+              detail={r.total != null ? String(r.total) : null}
+              last={i === home.last_results.length - 1}
+            />
+          ))
+        )}
+      </Section>
+    </>
+  );
+}

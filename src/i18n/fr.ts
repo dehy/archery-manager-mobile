@@ -1,6 +1,13 @@
 export const fr = {
   tabs: { home: 'Accueil', club: 'Club', account: 'Compte' },
-  common: { loading: 'Chargement…', logout: 'Se déconnecter' },
+  common: {
+    loading: 'Chargement…',
+    logout: 'Se déconnecter',
+    retry: 'Réessayer',
+    loadError: 'Impossible de charger cette page.',
+    offline: 'Impossible de joindre le serveur. Vérifiez votre connexion.',
+    forbiddenSeason: 'Aucune licence pour la saison %{season}.',
+  },
   login: {
     title: 'Connexion',
     email: 'Adresse e-mail',
@@ -16,5 +23,48 @@ export const fr = {
     network_error: 'Impossible de joindre le serveur.',
     unknown: 'Une erreur est survenue.',
   },
-  home: { greeting: 'Bonjour %{name}', licensees: 'Licenciés', none: 'Aucun licencié' },
+  labels: {
+    eventType: {
+      contest_official: 'Concours',
+      contest_hobby: 'Concours loisir',
+      training: 'Entraînement',
+      free_training: 'Entraînement libre',
+      other: 'Autre',
+    },
+    applicationStatus: {
+      pending: 'En attente',
+      validated: 'Validée',
+      waiting_list: "Liste d'attente",
+      rejected: 'Refusée',
+      cancelled: 'Annulée',
+    },
+    participation: {
+      none: 'Pas de réponse',
+      contest: {
+        not_going: "Je n'y vais pas",
+        interested: 'Intéressé',
+        registered: 'Je suis inscrit',
+      },
+      training: { not_going: 'Absent', interested: 'Intéressé', registered: 'Présent' },
+    },
+  },
+  home: {
+    greeting: 'Bonjour %{name}',
+    season: 'Saison %{season}',
+    nextEvents: 'Prochains événements',
+    lastResults: 'Derniers résultats',
+    noEvents: 'Aucun événement à venir.',
+    noResults: 'Aucun résultat pour le moment.',
+    allDay: 'toute la journée',
+    participants: {
+      zero: 'Aucun participant',
+      one: '1 participant',
+      other: '%{count} participants',
+    },
+    blankTitle: "Aucun licencié n'est rattaché à ce compte.",
+    blankBody: 'Inscrivez-vous auprès de votre club depuis le site web, puis revenez ici.',
+    noLicenseTitle: 'Pas de licence pour la saison %{season}.',
+    applications: "Demandes d'inscription",
+    noApplications: 'Aucune demande pour cette saison.',
+  },
 };

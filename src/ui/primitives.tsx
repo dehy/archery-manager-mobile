@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import {
   ActivityIndicator,
   Pressable,
+  RefreshControl,
+  ScrollView,
   Text as RNText,
   TextInput,
   View,
@@ -94,6 +96,86 @@ export function TextField({
         }}
       />
       {error ? <Text variant="error">{error}</Text> : null}
+    </View>
+  );
+}
+
+/**
+ * Scrolling screen under a native header. iOS lets the system inset the content below the
+ * (large, translucent) header; Android has an opaque top app bar, so no extra inset is needed.
+ */
+export function ScrollScreen({
+  children,
+  refreshing,
+  onRefresh,
+}: {
+  children: ReactNode;
+  refreshing?: boolean;
+  onRefresh?: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.background }}
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{ paddingVertical: spacing.md }}
+      refreshControl={
+        onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} /> : undefined
+      }
+    >
+      {children}
+    </ScrollView>
+  );
+}
+
+export function Message({
+  title,
+  body,
+  actionLabel,
+  onAction,
+}: {
+  title: string;
+  body?: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
+  return (
+    <View style={{ padding: spacing.lg, gap: spacing.sm, alignItems: 'center' }}>
+      <Text
+        accessibilityRole="header"
+        style={{ fontSize: 17, fontWeight: '600', textAlign: 'center' }}
+      >
+        {title}
+      </Text>
+      {body ? (
+        <Text variant="muted" style={{ textAlign: 'center' }}>
+          {body}
+        </Text>
+      ) : null}
+      {actionLabel && onAction ? (
+        <View style={{ alignSelf: 'stretch', marginTop: spacing.sm }}>
+          <Button title={actionLabel} onPress={onAction} />
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+/** Placeholder rows while the first load is in flight (no spinner). */
+export function SkeletonRows({ count = 3 }: { count?: number }) {
+  const theme = useTheme();
+  return (
+    <View accessibilityLabel="Chargement" style={{ gap: spacing.md, padding: spacing.md }}>
+      {Array.from({ length: count }, (_, i) => (
+        <View key={i} style={{ gap: 6 }}>
+          <View
+            style={{ height: 14, width: '60%', borderRadius: 4, backgroundColor: theme.tint }}
+          />
+          <View
+            style={{ height: 12, width: '85%', borderRadius: 4, backgroundColor: theme.tint }}
+          />
+        </View>
+      ))}
     </View>
   );
 }
