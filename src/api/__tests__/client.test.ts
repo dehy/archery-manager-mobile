@@ -142,6 +142,24 @@ describe('api client', () => {
     expect(client.fileHeaders()).toMatchObject({ Authorization: 'Bearer a1', 'X-Licensee': '123' });
   });
 
+  it('downloads files as bytes with the bearer token and keeps JSON errors', async () => {
+    const fetchMock = jest
+      .fn()
+      .mockResolvedValueOnce(new Response(new Uint8Array([1, 2, 3]), { status: 200 }))
+      .mockResolvedValueOnce(json(404, { error: 'not_found', message: 'x' }));
+    const { client } = setup(valid, fetchMock);
+
+    const bytes = await client.requestFile('/api/v1/licensees/7/attachments/42');
+    expect(new Uint8Array(bytes)).toEqual(new Uint8Array([1, 2, 3]));
+    expect(fetchMock.mock.calls[0][0]).toBe('http://api/api/v1/licensees/7/attachments/42');
+    expect(fetchMock.mock.calls[0][1].headers.Authorization).toBe('Bearer a1');
+
+    await expect(client.requestFile('/api/v1/licensees/7/attachments/43')).rejects.toMatchObject({
+      status: 404,
+      code: 'not_found',
+    });
+  });
+
   it('surfaces the server error body and Retry-After', async () => {
     const fetchMock = jest
       .fn()

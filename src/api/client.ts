@@ -25,6 +25,8 @@ type RequestOptions = {
   body?: unknown;
   /** Send the bearer token (default true). */
   auth?: boolean;
+  /** `binary` returns the raw bytes (files); errors are still JSON. Default `json`. */
+  responseType?: 'json' | 'binary';
 };
 
 export function toTokens(response: TokenResponse, now: number): Tokens {
@@ -60,6 +62,9 @@ export function createApiClient(deps: ApiClientDeps) {
     }
 
     if (response.status === 204) return undefined as T;
+    if (response.ok && options.responseType === 'binary') {
+      return (await response.arrayBuffer()) as T;
+    }
 
     const text = await response.text();
     let data: unknown;
@@ -108,6 +113,11 @@ export function createApiClient(deps: ApiClientDeps) {
     return refreshing;
   }
 
+  /** Authenticated download of a file URL (a host-root path from the API), with the same token handling. */
+  function requestFile(path: string): Promise<ArrayBuffer> {
+    return request<ArrayBuffer>(path.replace(API_PREFIX, ''), { responseType: 'binary' });
+  }
+
   async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
     if (options.auth === false) return send<T>(path, options);
 
@@ -145,7 +155,7 @@ export function createApiClient(deps: ApiClientDeps) {
     };
   }
 
-  return { request, refresh, fileUrl, fileHeaders };
+  return { request, requestFile, refresh, fileUrl, fileHeaders };
 }
 
 export type ApiClient = ReturnType<typeof createApiClient>;
