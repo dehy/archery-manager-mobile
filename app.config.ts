@@ -25,7 +25,7 @@ const config: ExpoConfig = {
   },
   web: { favicon: './assets/favicon.png' },
   plugins: ['expo-router', 'expo-secure-store', 'expo-localization'],
-  experiments: { typedRoutes: true },
+  experiments: { typedRoutes: false },
 };
 
 export default config;

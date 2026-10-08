@@ -6,7 +6,7 @@ export const fr = {
     retry: 'Réessayer',
     loadError: 'Impossible de charger cette page.',
     offline: 'Impossible de joindre le serveur. Vérifiez votre connexion.',
-    forbiddenSeason: 'Aucune licence pour la saison %{season}.',
+    forbiddenSeason: 'Aucune licence pour la saison sélectionnée.',
   },
   login: {
     title: 'Connexion',
@@ -47,6 +47,19 @@ export const fr = {
       },
       training: { not_going: 'Absent', interested: 'Intéressé', registered: 'Présent' },
     },
+  },
+  club: {
+    members: {
+      zero: 'Aucun membre',
+      one: '1 membre',
+      other: '%{count} membres',
+    },
+    membersOfTotal: '%{count} sur %{total} membres',
+    all: 'Tous',
+    withoutGroup: 'Sans groupe',
+    search: 'Rechercher un membre',
+    noMatch: 'Aucun membre ne correspond à « %{query} ».',
+    noMembers: 'Aucun membre pour le moment.',
   },
   home: {
     greeting: 'Bonjour %{name}',
