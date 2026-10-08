@@ -5,7 +5,17 @@ const time = new Intl.DateTimeFormat(LOCALE, { hour: '2-digit', minute: '2-digit
 
 const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
 
-/** "mar. 13 oct. · 19:00–21:00", "dim. 18 oct. · toute la journée", or a day range. */
+/** Calendar date of an ISO string in its own offset, as a local noon Date (no timezone shift). */
+function wallDate(iso: string, dayOffset = 0): Date {
+  const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
+  return new Date(y, m - 1, d + dayOffset, 12);
+}
+
+/**
+ * "mar. 13 oct. · 19:00–21:00", "dim. 18 oct. · toute la journée", or a day range.
+ * All-day events are shown by their own calendar dates: the API ends them at midnight of the
+ * following day (exclusive), and a device in another timezone must not move them.
+ */
 export function formatEventWhen(
   startsAt: string | null,
   endsAt: string | null,
@@ -13,19 +23,18 @@ export function formatEventWhen(
   allDayLabel: string,
 ): string {
   if (!startsAt) return '';
-  const start = new Date(startsAt);
-  let end = endsAt ? new Date(endsAt) : null;
-  // The API ends an all-day event at midnight (in its own offset) of the following day, an
-  // exclusive end: step back so a one-day event is not shown as a two-day range.
-  if (allDay && end && end > start && /T00:00(:00)?/.test(endsAt ?? '')) {
-    end = new Date(end.getTime() - 60_000);
-  }
 
   if (allDay) {
-    return end && !sameDay(start, end)
-      ? `${day.format(start)} – ${day.format(end)}`
-      : `${day.format(start)} · ${allDayLabel}`;
+    const first = wallDate(startsAt);
+    let last = endsAt ? wallDate(endsAt) : first;
+    if (endsAt && /T00:00(:00)?/.test(endsAt) && last > first) last = wallDate(endsAt, -1);
+    return sameDay(first, last)
+      ? `${day.format(first)} · ${allDayLabel}`
+      : `${day.format(first)} – ${day.format(last)}`;
   }
+
+  const start = new Date(startsAt);
+  const end = endsAt ? new Date(endsAt) : null;
   if (end && !sameDay(start, end)) {
     return `${day.format(start)} ${time.format(start)} – ${day.format(end)} ${time.format(end)}`;
   }
