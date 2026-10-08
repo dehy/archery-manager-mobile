@@ -26,6 +26,17 @@ describe('formatEventWhen', () => {
     expect(text).toContain(allDay);
   });
 
+  it('treats a midnight end of an all-day event as exclusive (real API shape)', () => {
+    const text = formatEventWhen(
+      '2026-10-10T00:00:00+02:00',
+      '2026-10-11T00:00:00+02:00',
+      true,
+      allDay,
+    );
+    expect(text).toContain(allDay);
+    expect(text).not.toContain('–');
+  });
+
   it('formats a multi-day all-day event as a day range', () => {
     const text = formatEventWhen(
       '2026-10-17T00:00:00+02:00',

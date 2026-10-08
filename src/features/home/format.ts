@@ -14,7 +14,12 @@ export function formatEventWhen(
 ): string {
   if (!startsAt) return '';
   const start = new Date(startsAt);
-  const end = endsAt ? new Date(endsAt) : null;
+  let end = endsAt ? new Date(endsAt) : null;
+  // The API ends an all-day event at midnight (in its own offset) of the following day, an
+  // exclusive end: step back so a one-day event is not shown as a two-day range.
+  if (allDay && end && end > start && /T00:00(:00)?/.test(endsAt ?? '')) {
+    end = new Date(end.getTime() - 60_000);
+  }
 
   if (allDay) {
     return end && !sameDay(start, end)
