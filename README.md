@@ -18,11 +18,16 @@ npm run ios        # or: npm run android
 `EXPO_PUBLIC_API_URL` (default `http://localhost:8080`). On the Android emulator `localhost` is
 rewritten to `10.0.2.2`. EAS profiles set it per environment in `eas.json`.
 
+## API contract
+
+`api/openapi.yaml` is a pinned copy of the backend's contract. `npm run api:sync` refreshes it (needs `gh`) and
+regenerates `src/api/schema.d.ts`; `npm run api:check` fails when the generated file is out of date.
+
 ## Scripts
 
-`npm run typecheck` · `npm run lint` · `npm test` · `npm run format`
+`npm run typecheck` · `npm run lint` · `npm test` · `npm run format` · `npm run api:sync` · `npm run api:check`
 
 ## Backend contract
 
-Bearer-token API under `/api/v1`: `POST /auth/login`, `/auth/refresh`, `/auth/logout`, `GET /me`, `GET /health`.
+Bearer-token API under `/api/v1`: auth (`/auth/login|refresh|logout`), `/me`, `/home`, `/club`, `/club/members`, `/licensees/{id}` (+ picture, attachments), `/health`.
 Errors are `{ "error": "<code>", "message": "..." }`. Context headers: `X-Licensee`, `X-Season`.

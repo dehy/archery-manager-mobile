@@ -6,28 +6,29 @@ Contract: `docs/api/openapi.yaml` in `dehy/archery-manager` (pinned copy to be a
 
 ## 1. Principle: one structure, two native skins
 
-Same information architecture and same code paths on both platforms. The platform decides the *chrome*
+Same information architecture and same code paths on both platforms. The platform decides the _chrome_
 (tab bar, headers, menus, sheets, pickers, feedback), through native components, never through custom
 look-alikes. Anything the native component does well stays native; we only build what the platform lacks.
 
-| Concern | iOS | Android |
-|---|---|---|
-| Tab bar | `NativeTabs` (UITabBar, Liquid Glass on iOS 26, minimize on scroll) | `NativeTabs` (Material 3 navigation bar, indicator pill) |
-| Tab icons | SF Symbols (`sf`) | Material Symbols (`md`) |
-| Screen header | Large title that collapses, translucent bar | Top app bar (small, elevates on scroll) |
-| Header actions | `Stack.Toolbar` buttons and menus (UIMenu), icon or text | `Stack.Toolbar` icon-only (labels are dropped on Android) |
-| Search | Native search bar in the header (`Stack.SearchBar`), pulls down with the list | Material search field via the same API; verify rendering on device |
-| Lists | Inset grouped sections, chevrons, separators inset past the avatar | Flat full-width rows, no chevrons, dividers optional, ripple on press |
-| Switch licensee / season | Header menu (`Stack.Toolbar.Menu`, checkmark on current) | Same menu in the app bar overflow; season picker as a bottom sheet |
-| Sheets | `formSheet` with detents and grabber | `formSheet` (max 3 detents; title and actions live inside the content) |
-| Back | Edge swipe, back chevron with previous title | System back / predictive back (keep `predictiveBackGestureEnabled` decision in `app.config.ts`) |
-| Feedback | Haptics on selection (`expo-haptics`), no ripple | Ripple, no haptics except long-press |
-| Pull to refresh | System `RefreshControl` | System `RefreshControl` |
-| Colors | System colors and `PlatformColor` (label, secondaryLabel, systemGroupedBackground) | Material You dynamic color via `PlatformColor('@android:color/system_*')` with a static fallback |
-| Type | San Francisco, Dynamic Type | Roboto / system font, font scale |
-| Dark mode | Follows system | Follows system |
+| Concern                  | iOS                                                                                | Android                                                                                          |
+| ------------------------ | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Tab bar                  | `NativeTabs` (UITabBar, Liquid Glass on iOS 26, minimize on scroll)                | `NativeTabs` (Material 3 navigation bar, indicator pill)                                         |
+| Tab icons                | SF Symbols (`sf`)                                                                  | Material Symbols (`md`)                                                                          |
+| Screen header            | Large title that collapses, translucent bar                                        | Top app bar (small, elevates on scroll)                                                          |
+| Header actions           | `Stack.Toolbar` buttons and menus (UIMenu), icon or text                           | `Stack.Toolbar` icon-only (labels are dropped on Android)                                        |
+| Search                   | Native search bar in the header (`Stack.SearchBar`), pulls down with the list      | Material search field via the same API; verify rendering on device                               |
+| Lists                    | Inset grouped sections, chevrons, separators inset past the avatar                 | Flat full-width rows, no chevrons, dividers optional, ripple on press                            |
+| Switch licensee / season | Header menu (`Stack.Toolbar.Menu`, checkmark on current)                           | Same menu in the app bar overflow; season picker as a bottom sheet                               |
+| Sheets                   | `formSheet` with detents and grabber                                               | `formSheet` (max 3 detents; title and actions live inside the content)                           |
+| Back                     | Edge swipe, back chevron with previous title                                       | System back / predictive back (keep `predictiveBackGestureEnabled` decision in `app.config.ts`)  |
+| Feedback                 | Haptics on selection (`expo-haptics`), no ripple                                   | Ripple, no haptics except long-press                                                             |
+| Pull to refresh          | System `RefreshControl`                                                            | System `RefreshControl`                                                                          |
+| Colors                   | System colors and `PlatformColor` (label, secondaryLabel, systemGroupedBackground) | Material You dynamic color via `PlatformColor('@android:color/system_*')` with a static fallback |
+| Type                     | San Francisco, Dynamic Type                                                        | Roboto / system font, font scale                                                                 |
+| Dark mode                | Follows system                                                                     | Follows system                                                                                   |
 
 Rules of thumb for the implementation:
+
 - Platform branching lives in a few thin files (`*.ios.tsx` / `*.android.tsx`) or one `Platform.select` at the leaf, never scattered through screens.
 - Respect accessibility settings on both platforms (Dynamic Type / font scale up to 200%, VoiceOver / TalkBack labels, reduce motion).
 - Brand color comes from the club (`club.primary_color`) and only tints accents (selected chip, avatar fallback, prominent button). Text and surfaces stay on system colors, and a club color failing 4.5:1 contrast on its tint falls back to the app default.
@@ -58,11 +59,11 @@ The selected licensee is shown as a subtle subtitle/menu on Home and Club (a fam
 
 ### 3.1 Accueil (`GET /home`, discriminated union on `state`)
 
-| State | Content | Primary action |
-|---|---|---|
-| `blank_account` | Illustration-free empty state: "Aucun licencié n'est rattaché à ce compte." | Link to the web app to register a licensee (API versions of registration do not exist yet) |
-| `no_license` | Licensee greeting, season, list of club applications with a status chip and the club's message | None (read-only for now) |
-| `dashboard` | Greeting + season; **Prochains événements** (up to 5) and **Derniers résultats** (up to 5) | Tap an event or result: no-op in phase 2 (detail comes with phases 3 and 4); rows are rendered non-interactive, not as dead links |
+| State           | Content                                                                                        | Primary action                                                                                                                    |
+| --------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `blank_account` | Illustration-free empty state: "Aucun licencié n'est rattaché à ce compte."                    | Link to the web app to register a licensee (API versions of registration do not exist yet)                                        |
+| `no_license`    | Licensee greeting, season, list of club applications with a status chip and the club's message | None (read-only for now)                                                                                                          |
+| `dashboard`     | Greeting + season; **Prochains événements** (up to 5) and **Derniers résultats** (up to 5)     | Tap an event or result: no-op in phase 2 (detail comes with phases 3 and 4); rows are rendered non-interactive, not as dead links |
 
 - Event row: title, date/time range (all day aware), address, type chip, participation state, participant count. Participation labels depend on event type (contest vs training); `null` shows "Pas de réponse".
 - Result row: event title and date, distance and target (`30 m, trispot 40 cm`), total score right-aligned, tabular figures.
@@ -81,7 +82,7 @@ The selected licensee is shown as a subtle subtitle/menu on Home and Club (a fam
 ### 3.3 Profil licencié (`GET /licensees/{id}`)
 
 - Header: picture (large), `full_name` or `display_name` as returned by the API for the viewer (use `display_name` in the nav title, `full_name` only where the API provides it for the viewer), groups, activities.
-- Sections: *Licence* (club, saison, type, catégorie, catégorie d'âge, activités), *Identité* (sexe, numéro de licence FFTA), *Documents* (attachments: type, date, file name, size).
+- Sections: _Licence_ (club, saison, type, catégorie, catégorie d'âge, activités), _Identité_ (sexe, numéro de licence FFTA), _Documents_ (attachments: type, date, file name, size).
 - Attachment tap: download with the bearer token to the cache directory (`If-Modified-Since` honored), open in the system viewer (iOS Quick Look / share sheet, Android `ACTION_VIEW` through a content URI). Progress inline in the row; failure toast, 404 shows "Document introuvable".
 - 403: full-screen "Vous n'avez pas accès à ce profil." (expected answer, not an error report). 404: "Profil introuvable."
 - iOS: push with large-title-free nav bar, inset grouped list. Android: top app bar with back arrow, list sections.
@@ -96,13 +97,13 @@ The selected licensee is shown as a subtle subtitle/menu on Home and Club (a fam
 Every screen implements: loading (skeleton), empty, error with retry, offline (message + retry; no stale cache shown after a context change), forbidden.
 All copy goes through `src/i18n`. Error codes map to French in `errors.*`; `message` is never displayed. Workflow labels owned by the app:
 
-| Code | Label |
-|---|---|
-| application `pending` / `validated` / `waiting_list` / `rejected` / `cancelled` | En attente / Validée / Liste d'attente / Refusée / Annulée |
+| Code                                                                                | Label                                                                  |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| application `pending` / `validated` / `waiting_list` / `rejected` / `cancelled`     | En attente / Validée / Liste d'attente / Refusée / Annulée             |
 | event `contest_official` / `contest_hobby` / `training` / `free_training` / `other` | Concours / Concours loisir / Entraînement / Entraînement libre / Autre |
-| participation (contests) `not_going` / `interested` / `registered` | Je n'y vais pas / Intéressé / Je suis inscrit |
-| participation (trainings) `not_going` / `registered` | Absent / Présent |
-| participation `null` | Pas de réponse |
+| participation (contests) `not_going` / `interested` / `registered`                  | Je n'y vais pas / Intéressé / Je suis inscrit                          |
+| participation (trainings) `not_going` / `registered`                                | Absent / Présent                                                       |
+| participation `null`                                                                | Pas de réponse                                                         |
 
 ## 5. Engineering design
 
@@ -127,6 +128,7 @@ All copy goes through `src/i18n`. Error codes map to French in `errors.*`; `mess
 ## 7. Delivery plan
 
 Branch `phase-2-home-club-members`, atomic gitmoji commits:
+
 1. ✨ OpenAPI sync script, generated types, CI drift check; migrate existing auth/me code to generated types.
 2. 🐛 Client fixes from §5.2 with tests.
 3. ✨ Native navigation shell (`NativeTabs`, tab screens, `src/ui/nav`), i18n additions.
@@ -137,3 +139,12 @@ Branch `phase-2-home-club-members`, atomic gitmoji commits:
 8. 📝 Update README / CLAUDE.md.
 
 Acceptance (from the bootstrap doc): data matches the web for the same fixture account (season 2027), a forbidden profile shows its message, login → switch licensee → logout works on iOS and Android, a revoked session returns to login.
+
+## 8. Deviations from the design while implementing
+
+- **Licensee/season menus in headers**: dropped. `Stack.Toolbar` menus are icon-only on Android and not worth the fragility yet. The licensee picker is a `formSheet` route on both platforms (reached from Compte), not an iOS `UIMenu`.
+- **Season**: read-only row in Compte until the API lists a licensee's seasons (request #2).
+- **"Mon profil"** uses the licensee id returned by `/home` for the resolved licensee, so request #1 (id in `/me`) is nice to have, not blocking.
+- **Documents** open through the system share sheet (`expo-sharing`) after an authenticated download; there is no in-app preview or Quick Look yet.
+- **Typed routes** are off (`typedRoutes: false`): the route types are only generated by the dev server, which CI does not run.
+- **Android colors** are a static light/dark palette, not Material You dynamic color yet; iOS uses system colors.
