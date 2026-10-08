@@ -5,7 +5,7 @@ import { createApiClient, toTokens } from '@/api/client';
 import { getApiUrl } from '@/api/config';
 import type { MeResponse, Tokens, TokenResponse } from '@/api/types';
 
-import { loadTokens, saveTokens } from './tokenStorage';
+import { loadLicensee, loadTokens, saveLicensee, saveTokens } from './tokenStorage';
 
 type SessionState = {
   status: 'loading' | 'signedOut' | 'signedIn';
@@ -14,6 +14,8 @@ type SessionState = {
   licensee: string | null;
   season: number | null;
   restore: () => Promise<void>;
+  /** Persisted choice; null goes back to the server default (first licensee). */
+  setLicensee: (code: string | null) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -25,8 +27,13 @@ export const useSession = create<SessionState>((set, get) => ({
   season: null,
 
   async restore() {
-    const tokens = await loadTokens();
-    set({ tokens, status: tokens ? 'signedIn' : 'signedOut' });
+    const [tokens, licensee] = await Promise.all([loadTokens(), loadLicensee()]);
+    set({ tokens, licensee: tokens ? licensee : null, status: tokens ? 'signedIn' : 'signedOut' });
+  },
+
+  async setLicensee(code) {
+    set({ licensee: code });
+    await saveLicensee(code);
   },
 
   async signIn(email, password) {
@@ -43,7 +50,7 @@ export const useSession = create<SessionState>((set, get) => ({
   async signOut() {
     const refreshToken = get().tokens?.refreshToken;
     // Clear locally first: logging out must work offline too.
-    await saveTokens(null);
+    await Promise.all([saveTokens(null), saveLicensee(null)]);
     set({ tokens: null, status: 'signedOut', licensee: null, season: null });
     if (!refreshToken) return;
     try {
@@ -65,7 +72,10 @@ export const api = createApiClient({
     await saveTokens(tokens);
     useSession.setState({ tokens });
   },
-  onSessionExpired: () => useSession.setState({ status: 'signedOut', tokens: null }),
+  onSessionExpired: () => {
+    saveLicensee(null).catch(() => {});
+    useSession.setState({ status: 'signedOut', tokens: null, licensee: null });
+  },
   getContextHeaders: () => {
     const { licensee, season } = useSession.getState();
     const headers: Record<string, string> = {};

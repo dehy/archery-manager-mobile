@@ -61,6 +61,17 @@ export const fr = {
     noMatch: 'Aucun membre ne correspond à « %{query} ».',
     noMembers: 'Aucun membre pour le moment.',
   },
+  account: {
+    context: 'Contexte',
+    licensee: 'Licencié',
+    season: 'Saison',
+    myProfile: 'Mon profil',
+    logoutTitle: 'Se déconnecter ?',
+    logoutBody: 'Vous devrez saisir à nouveau vos identifiants.',
+    cancel: 'Annuler',
+    version: 'Version %{version}',
+    pickLicensee: 'Choisir un licencié',
+  },
   licensee: {
     forbidden: "Vous n'avez pas accès à ce profil.",
     notFound: 'Profil introuvable.',
