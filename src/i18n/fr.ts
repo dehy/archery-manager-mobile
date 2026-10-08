@@ -1,4 +1,5 @@
 export const fr = {
+  tabs: { home: 'Accueil', club: 'Club', account: 'Compte' },
   common: { loading: 'Chargement…', logout: 'Se déconnecter' },
   login: {
     title: 'Connexion',
