@@ -26,15 +26,25 @@ describe('formatEventWhen', () => {
     expect(text).toContain(allDay);
   });
 
-  it('treats a midnight end of an all-day event as exclusive (real API shape)', () => {
+  it('reads an all-day end as inclusive (API contract): Saturday 10 to Sunday 11 is two days', () => {
     const text = formatEventWhen(
       '2026-10-10T00:00:00+02:00',
       '2026-10-11T00:00:00+02:00',
       true,
       allDay,
     );
+    expect(text).not.toContain(allDay);
+    expect(text).toMatch(/10 oct\. – .*11 oct\./);
+  });
+
+  it('shows a one-day all-day event (same date on both ends) as a single day', () => {
+    const text = formatEventWhen(
+      '2026-10-10T00:00:00+02:00',
+      '2026-10-10T00:00:00+02:00',
+      true,
+      allDay,
+    );
     expect(text).toContain(allDay);
-    expect(text).not.toContain('–');
   });
 
   it('formats a multi-day all-day event as a day range', () => {
