@@ -18,8 +18,8 @@ Install Expo-aware packages with `npx expo install`.
 - `src/app/` Expo Router routes (`(auth)` signed-out, `(app)` signed-in, gated in `_layout.tsx`)
 - `src/api/` fetch client (bearer, single-flight refresh, typed `ApiError`), config, types
 - `src/auth/` secure token storage and the zustand session store (`api` singleton lives in `session.ts`)
-- `src/features/<name>/` queries, formatting and content components per area (home, club, licensee, account)
-- `src/ui/` theme, list primitives (`Section`/`Row`/`Chip`), `Avatar`, `nav/` (isolates unstable Expo Router APIs); `src/i18n/` French-first strings (no hardcoded UI text)
+- `src/features/<name>/` queries, formatting and content components per area (home, club, licensee, account, events, results, advice, calendar, files)
+- `src/ui/` theme, list primitives (`Section`/`Row`/`Chip`), `Avatar`, `BarChart`, `html/` (native renderer for the API's sanitized HTML), `nav/` (isolates unstable Expo Router APIs); `src/i18n/` French-first strings (no hardcoded UI text)
 
 ## Conventions
 
@@ -32,4 +32,10 @@ Install Expo-aware packages with `npx expo install`.
 
 Same screens, native chrome: `NativeTabs`, native stack headers with large titles (iOS), `Stack.SearchBar`, `formSheet` for pickers.
 iOS uses system colors and inset grouped lists; Android flat lists with ripple. Branch on `isIOS` from `@/ui` at the leaf, not in screens.
-Design notes and decisions: `docs/design/phase-2.md`.
+Design notes and decisions: `docs/design/phase-2.md`, `docs/design/phases-3-4.md`.
+
+## Testing notes
+
+- Jest pins `TZ=Europe/Paris` (`jest.config.js`); dates from the API are read in the club's own offset.
+- ESM-only packages must be added to the transform allow-list in `jest.config.js` (it extends jest-expo's list).
+- Run `npx tsc --noEmit` and read the whole output: the first error is often the real one.
