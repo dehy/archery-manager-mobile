@@ -15,6 +15,7 @@ export type EnumValue = Schemas['EnumValue'];
 export type Group = Schemas['Group'];
 
 export type EventListResponse = Schemas['EventList'];
+export type EventSummary = Schemas['EventSummary'];
 export type EventListItem = Schemas['EventListItem'];
 export type EventDetail = Schemas['EventDetail'];
 export type EventResponse = Schemas['EventResponse'];

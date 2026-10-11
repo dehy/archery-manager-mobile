@@ -1,11 +1,12 @@
 import { View } from 'react-native';
 
 import type { HomeResponse } from '@/api/types';
-import { applicationStatusLabel, eventTypeLabel, participationLabel } from '@/features/labels';
+import { EventRow } from '@/features/events/EventRow';
+import { applicationStatusLabel } from '@/features/labels';
 import { t } from '@/i18n';
 import { Message, Row, Section, Text, spacing } from '@/ui';
 
-import { formatEventWhen, formatResultTarget, formatSeason } from './format';
+import { formatResultTarget, formatSeason } from './format';
 
 type Home = HomeResponse;
 
@@ -65,19 +66,7 @@ function Dashboard({ home }: { home: Extract<Home, { state: 'dashboard' }> }) {
           <Row title={t('home.noEvents')} last />
         ) : (
           home.next_events.map((e, i) => (
-            <Row
-              key={e.id}
-              testID={`event-${e.id}`}
-              title={e.title}
-              subtitle={[
-                formatEventWhen(e.starts_at, e.ends_at, e.all_day, t('home.allDay')),
-                e.address,
-              ]
-                .filter(Boolean)
-                .join('\n')}
-              caption={`${eventTypeLabel(e.type)} · ${participationLabel(e.type, e.participation_state)} · ${t('home.participants', { count: e.participants_count })}`}
-              last={i === home.next_events.length - 1}
-            />
+            <EventRow key={e.id} event={e} last={i === home.next_events.length - 1} />
           ))
         )}
       </Section>

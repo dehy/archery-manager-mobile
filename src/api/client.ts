@@ -21,7 +21,7 @@ export type ApiClientDeps = {
 };
 
 type RequestOptions = {
-  method?: 'GET' | 'POST';
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: unknown;
   /** Send the bearer token (default true). */
   auth?: boolean;

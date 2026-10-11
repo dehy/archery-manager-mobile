@@ -10,7 +10,7 @@ import { useClub, useMembers, type GroupFilter } from '@/features/club/queries';
 import { isForbidden, loadErrorMessage } from '@/features/errors';
 import { useDebouncedValue } from '@/features/useDebouncedValue';
 import { t } from '@/i18n';
-import { Avatar, Message, Row, SkeletonRows, Text, isIOS, useTheme } from '@/ui';
+import { Avatar, GroupedItem, Message, Row, SkeletonRows, Text, useTheme } from '@/ui';
 
 export default function ClubScreen() {
   const router = useRouter();
@@ -74,37 +74,19 @@ export default function ClubScreen() {
     </View>
   );
 
-  const renderItem = ({ item, index }: { item: MemberSummary; index: number }) => {
-    const isFirst = index === 0;
-    const isLast = index === items.length - 1 && !members.hasNextPage;
-    return (
-      <View
-        style={
-          isIOS
-            ? {
-                backgroundColor: theme.surface,
-                marginHorizontal: 16,
-                borderTopLeftRadius: isFirst ? 12 : 0,
-                borderTopRightRadius: isFirst ? 12 : 0,
-                borderBottomLeftRadius: isLast ? 12 : 0,
-                borderBottomRightRadius: isLast ? 12 : 0,
-                overflow: 'hidden',
-              }
-            : undefined
-        }
-      >
-        <Row
-          testID={`member-${item.id}`}
-          title={item.display_name}
-          subtitle={item.groups.map((g) => g.name).join(', ') || null}
-          caption={item.activities.map((a) => a.label).join(' · ') || null}
-          left={<Avatar pictureUrl={item.picture_url} initials={initials(item.display_name)} />}
-          onPress={() => router.push({ pathname: '/licensee/[id]', params: { id: item.id } })}
-          last={isLast}
-        />
-      </View>
-    );
-  };
+  const renderItem = ({ item, index }: { item: MemberSummary; index: number }) => (
+    <GroupedItem index={index} count={items.length}>
+      <Row
+        testID={`member-${item.id}`}
+        title={item.display_name}
+        subtitle={item.groups.map((g) => g.name).join(', ') || null}
+        caption={item.activities.map((a) => a.label).join(' · ') || null}
+        left={<Avatar pictureUrl={item.picture_url} initials={initials(item.display_name)} />}
+        onPress={() => router.push({ pathname: '/licensee/[id]', params: { id: item.id } })}
+        last={index === items.length - 1 && !members.hasNextPage}
+      />
+    </GroupedItem>
+  );
 
   return (
     <>

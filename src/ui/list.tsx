@@ -172,3 +172,67 @@ export function Badge({ label }: { label: string }) {
     </View>
   );
 }
+
+/**
+ * Wraps a row of a flat list (FlatList / SectionList) so that, on iOS, consecutive rows read as
+ * one inset grouped card: surface background, rounded first and last corners.
+ */
+export function GroupedItem({
+  index,
+  count,
+  children,
+}: {
+  index: number;
+  count: number;
+  children: ReactNode;
+}) {
+  const theme = useTheme();
+  if (!isIOS) return <View>{children}</View>;
+  const first = index === 0;
+  const last = index === count - 1;
+  return (
+    <View
+      style={{
+        backgroundColor: theme.surface,
+        marginHorizontal: 16,
+        borderTopLeftRadius: first ? 12 : 0,
+        borderTopRightRadius: first ? 12 : 0,
+        borderBottomLeftRadius: last ? 12 : 0,
+        borderBottomRightRadius: last ? 12 : 0,
+        overflow: 'hidden',
+      }}
+    >
+      {children}
+    </View>
+  );
+}
+
+/** Header of a titled group inside a flat list (same look as the title of `Section`). */
+export function GroupHeader({ title }: { title: string }) {
+  const theme = useTheme();
+  return (
+    <Text
+      variant="muted"
+      accessibilityRole="header"
+      style={
+        isIOS
+          ? {
+              textTransform: 'uppercase',
+              fontSize: 13,
+              marginHorizontal: 32,
+              marginBottom: 6,
+              marginTop: 12,
+            }
+          : {
+              color: theme.primary,
+              fontWeight: '500',
+              marginHorizontal: 16,
+              marginBottom: 4,
+              marginTop: 12,
+            }
+      }
+    >
+      {title}
+    </Text>
+  );
+}

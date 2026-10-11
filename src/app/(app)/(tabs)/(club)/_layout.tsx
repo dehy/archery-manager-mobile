@@ -11,7 +11,7 @@ export default function ClubLayout() {
         headerTransparent: process.env.EXPO_OS === 'ios',
       }}
     >
-      <Stack.Screen name="index" options={{ title: t('tabs.club') }} />
+      <Stack.Screen name="club" options={{ title: t('tabs.club') }} />
     </Stack>
   );
 }

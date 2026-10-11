@@ -1,5 +1,5 @@
 export const fr = {
-  tabs: { home: 'Accueil', club: 'Club', account: 'Compte' },
+  tabs: { home: 'Accueil', events: 'Événements', club: 'Club', account: 'Compte' },
   common: {
     loading: 'Chargement…',
     logout: 'Se déconnecter',
@@ -71,6 +71,12 @@ export const fr = {
     cancel: 'Annuler',
     version: 'Version %{version}',
     pickLicensee: 'Choisir un licencié',
+  },
+  events: {
+    restricted: 'Réservé à certains groupes',
+    none: 'Aucun événement sur cette période.',
+    previous: 'Mois précédent',
+    next: 'Mois suivant',
   },
   licensee: {
     forbidden: "Vous n'avez pas accès à ce profil.",

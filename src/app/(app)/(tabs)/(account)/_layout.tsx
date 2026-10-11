@@ -11,7 +11,7 @@ export default function AccountLayout() {
         headerTransparent: process.env.EXPO_OS === 'ios',
       }}
     >
-      <Stack.Screen name="index" options={{ title: t('tabs.account') }} />
+      <Stack.Screen name="account" options={{ title: t('tabs.account') }} />
     </Stack>
   );
 }

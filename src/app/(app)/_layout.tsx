@@ -10,6 +10,7 @@ export default function AppLayout() {
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="licensee/[id]" />
+      <Stack.Screen name="event/[id]" />
       <Stack.Screen
         name="licensee-picker"
         options={{

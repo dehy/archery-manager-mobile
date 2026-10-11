@@ -8,6 +8,13 @@ export default function TabsLayout() {
         <NativeTabs.Trigger.Icon sf={{ default: 'house', selected: 'house.fill' }} md="home" />
         <NativeTabs.Trigger.Label>{t('tabs.home')}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="(events)">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'calendar', selected: 'calendar' }}
+          md="calendar_month"
+        />
+        <NativeTabs.Trigger.Label>{t('tabs.events')}</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="(club)">
         <NativeTabs.Trigger.Icon
           sf={{ default: 'person.3', selected: 'person.3.fill' }}
