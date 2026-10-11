@@ -122,7 +122,7 @@ describe('groupByCategory', () => {
       ...scores,
       age_category: { code: age, label: age },
       activity: { code: activity, label: activity },
-      licensee: { id, display_name: `Archer ${id}` },
+      licensee: { id, display_name: `Archer ${id}`, can_view_profile: false },
       is_mine: false,
     });
     const groups = groupByCategory([

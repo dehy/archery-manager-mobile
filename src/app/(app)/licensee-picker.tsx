@@ -1,44 +1,37 @@
 import { useRouter } from 'expo-router';
-import { View } from 'react-native';
 
 import { useMe, useSwitchLicensee } from '@/features/account/queries';
 import { useSession } from '@/auth/session';
 import { t } from '@/i18n';
-import { Row, Section, Text, spacing, useTheme } from '@/ui';
+import { Row, Section } from '@/ui';
+import { PickerSheet } from '@/ui/PickerSheet';
 
-// Presented as a form sheet: a bottom sheet on Android, a detented sheet on iOS. Android sheets
-// have no native header, so the title lives in the content.
+// Presented as a form sheet: a bottom sheet on Android, a detented sheet on iOS.
 export default function LicenseePicker() {
   const router = useRouter();
-  const theme = useTheme();
   const { data } = useMe();
-  const selected = useSession((s) => s.licensee) ?? data?.context.licensee ?? null;
+  const selected = useSession((s) => s.licensee) ?? data?.context.licensee_id ?? null;
   const switchLicensee = useSwitchLicensee();
+  const licensees = data?.licensees ?? [];
 
   return (
-    <View style={{ backgroundColor: theme.background, paddingTop: spacing.md }}>
-      <Text
-        accessibilityRole="header"
-        style={{ fontSize: 17, fontWeight: '600', marginHorizontal: 16, marginBottom: spacing.sm }}
-      >
-        {t('account.pickLicensee')}
-      </Text>
+    <PickerSheet title={t('account.pickLicensee')}>
       <Section>
-        {(data?.licensees ?? []).map((l, i, all) => (
+        {licensees.map((l, i) => (
           <Row
-            key={l.ffta_member_code ?? i}
-            testID={`licensee-option-${l.ffta_member_code}`}
+            key={l.id}
+            testID={`licensee-option-${l.id}`}
             title={`${l.firstname} ${l.lastname}`}
-            detail={l.ffta_member_code === selected ? '✓' : null}
+            detail={l.id === selected ? '✓' : null}
             kind="action"
-            last={i === all.length - 1}
+            last={i === licensees.length - 1}
             onPress={async () => {
-              if (l.ffta_member_code) await switchLicensee(l.ffta_member_code);
               router.back();
+              if (l.id !== selected) await switchLicensee(l.id);
             }}
           />
         ))}
       </Section>
-    </View>
+    </PickerSheet>
   );
 }

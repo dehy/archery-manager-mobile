@@ -10,12 +10,14 @@ import { loadLicensee, loadTokens, saveLicensee, saveTokens } from './tokenStora
 type SessionState = {
   status: 'loading' | 'signedOut' | 'signedIn';
   tokens: Tokens | null;
-  /** FFTA member code sent as X-Licensee; null lets the server pick its default. */
-  licensee: string | null;
+  /** Licensee id sent as X-Licensee; null lets the server pick its default (first licensee). */
+  licensee: number | null;
+  /** Season sent as X-Season (the year it ends); null is the current season. Not persisted. */
   season: number | null;
   restore: () => Promise<void>;
-  /** Persisted choice; null goes back to the server default (first licensee). */
-  setLicensee: (code: string | null) => Promise<void>;
+  /** Persisted choice; null goes back to the server default. Resets the season (they differ per licensee). */
+  setLicensee: (id: number | null) => Promise<void>;
+  setSeason: (season: number | null) => void;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -31,9 +33,13 @@ export const useSession = create<SessionState>((set, get) => ({
     set({ tokens, licensee: tokens ? licensee : null, status: tokens ? 'signedIn' : 'signedOut' });
   },
 
-  async setLicensee(code) {
-    set({ licensee: code });
-    await saveLicensee(code);
+  async setLicensee(id) {
+    set({ licensee: id, season: null });
+    await saveLicensee(id);
+  },
+
+  setSeason(season) {
+    set({ season });
   },
 
   async signIn(email, password) {
@@ -74,12 +80,12 @@ export const api = createApiClient({
   },
   onSessionExpired: () => {
     saveLicensee(null).catch(() => {});
-    useSession.setState({ status: 'signedOut', tokens: null, licensee: null });
+    useSession.setState({ status: 'signedOut', tokens: null, licensee: null, season: null });
   },
   getContextHeaders: () => {
     const { licensee, season } = useSession.getState();
     const headers: Record<string, string> = {};
-    if (licensee) headers['X-Licensee'] = licensee;
+    if (licensee) headers['X-Licensee'] = String(licensee);
     if (season) headers['X-Season'] = String(season);
     return headers;
   },

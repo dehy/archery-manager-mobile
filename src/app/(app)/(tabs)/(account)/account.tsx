@@ -5,7 +5,6 @@ import { Alert } from 'react-native';
 import { useMe } from '@/features/account/queries';
 import { loadErrorMessage } from '@/features/errors';
 import { formatSeason } from '@/features/home/format';
-import { useHome } from '@/features/home/useHome';
 import { useSession } from '@/auth/session';
 import { t } from '@/i18n';
 import { Message, Row, ScrollScreen, Section, Text } from '@/ui';
@@ -14,7 +13,6 @@ export default function AccountScreen() {
   const router = useRouter();
   const signOut = useSession((s) => s.signOut);
   const me = useMe();
-  const home = useHome();
 
   if (me.error && !me.data) {
     return (
@@ -29,11 +27,11 @@ export default function AccountScreen() {
   }
 
   const data = me.data;
-  const selectedCode = data?.context.licensee ?? null;
-  const selected = data?.licensees.find((l) => l.ffta_member_code === selectedCode);
-  const myLicenseeId =
-    home.data && home.data.state !== 'blank_account' ? home.data.licensee.id : null;
-  const canSwitch = (data?.licensees.length ?? 0) > 1;
+  const selectedId = data?.context.licensee_id ?? null;
+  const selected = data?.licensees.find((l) => l.id === selectedId);
+  const canSwitchLicensee = (data?.licensees.length ?? 0) > 1;
+  // The season is pickable as soon as the licensee has another season than the one in use.
+  const canSwitchSeason = !!selected?.seasons.some((s) => s !== data?.context.season);
 
   const confirmSignOut = () =>
     Alert.alert(t('account.logoutTitle'), t('account.logoutBody'), [
@@ -61,19 +59,21 @@ export default function AccountScreen() {
               testID="row-licensee"
               title={t('account.licensee')}
               detail={selected ? `${selected.firstname} ${selected.lastname}` : null}
-              onPress={canSwitch ? () => router.push('/licensee-picker') : undefined}
+              onPress={canSwitchLicensee ? () => router.push('/licensee-picker') : undefined}
             />
             <Row
+              testID="row-season"
               title={t('account.season')}
               detail={formatSeason(data.context.season)}
-              last={myLicenseeId === null}
+              onPress={canSwitchSeason ? () => router.push('/season-picker') : undefined}
+              last={selectedId === null}
             />
-            {myLicenseeId !== null ? (
+            {selectedId !== null ? (
               <Row
                 testID="row-my-profile"
                 title={t('account.myProfile')}
                 onPress={() =>
-                  router.push({ pathname: '/licensee/[id]', params: { id: myLicenseeId } })
+                  router.push({ pathname: '/licensee/[id]', params: { id: selectedId } })
                 }
                 last
               />

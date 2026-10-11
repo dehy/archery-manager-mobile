@@ -267,8 +267,7 @@ export interface paths {
          *     license in, and the events without any club. Needs a license for the selected season.
          *
          *     `participation_state` includes the defaults of the web app (a training defaults to `registered` for the
-         *     members of its assigned groups). `participants_count` counts the *recorded* answers other than
-         *     `not_going`; the participants endpoint also lists the members who only have the default answer.
+         *     members of its assigned groups). `participants_count` is defined in `EventSummary`.
          */
         get: operations["listEvents"];
         put?: never;
@@ -569,13 +568,19 @@ export interface components {
             /** @description The licensees of the account (a parent can have several). */
             licensees: {
                 /** @description The value to send in `X-Licensee`. */
+                id: number;
+                /** @description `null` until the licensee is registered with the FFTA (a new applicant). */
                 ffta_member_code: string | null;
                 firstname: string;
                 lastname: string;
+                /** @description The seasons the licensee holds a license for, newest first (values for `X-Season`). */
+                seasons: number[];
             }[];
             /** @description What the headers resolved to. */
             context: {
-                /** @description FFTA member code of the licensee in use, `null` when the account has none. */
+                /** @description Id of the licensee in use, `null` when the account has none. */
+                licensee_id: number | null;
+                /** @description FFTA member code of the licensee in use (`null` when it has none). Prefer `licensee_id`. */
                 licensee: string | null;
                 season: number;
             };
@@ -636,7 +641,14 @@ export interface components {
             type: "contest_official" | "contest_hobby" | "training" | "free_training" | "other";
             /** Format: date-time */
             starts_at: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description For a timed event, the end time. For an all-day event (`all_day: true`) only the **dates** count and
+             *     the end is **inclusive**: the event runs from the date of `starts_at` to the date of `ends_at`, both
+             *     days included, and the times are meaningless (usually midnight). A contest on Saturday 10 and Sunday
+             *     11 October has `starts_at` 2026-10-10T00:00 and `ends_at` 2026-10-11T00:00; a one-day event has
+             *     the same date in both. This is what the web calendar and the iCal export do.
+             */
             ends_at: string | null;
             all_day: boolean;
             address: string | null;
@@ -646,7 +658,12 @@ export interface components {
              * @enum {string|null}
              */
             participation_state: "not_going" | "interested" | "registered" | null;
-            /** @description Participants of the event whose answer is not `not_going` (including those without an answer yet). */
+            /**
+             * @description How many members answered something other than `not_going`, counting **recorded** answers only (the
+             *     same number as the web dashboard, on every endpoint). Members of a training's groups who never
+             *     answered (and only have the default `registered`) are not counted;
+             *     `GET /events/{id}/participants` lists them.
+             */
             participants_count: number;
         };
         CalendarSubscriptionResponse: {
@@ -741,6 +758,7 @@ export interface components {
         EventParticipant: components["schemas"]["EventParticipationAnswer"] & {
             licensee_id: number;
             display_name: string;
+            can_view_profile: components["schemas"]["CanViewProfile"];
         };
         ResultScores: {
             id: number;
@@ -785,6 +803,7 @@ export interface components {
             licensee: {
                 id: number;
                 display_name: string;
+                can_view_profile: components["schemas"]["CanViewProfile"];
             };
             /** @description The result is the selected licensee's. */
             is_mine: boolean;
@@ -854,7 +873,11 @@ export interface components {
             ffta_code: string | null;
             /** @description Hexadecimal color, e.g. `#0a7d33`. */
             primary_color: string | null;
-            /** @description Path or URL of the club logo (public, no token needed), `null` when the club has none. */
+            /**
+             * @description The club logo (public, no token needed), `null` when the club has none: an absolute URL in production
+             *     (object storage), a path from the host root on a development server (`/uploads/clubs/...`). Resolve
+             *     it against the API host when it starts with `/`.
+             */
             logo_url: string | null;
         };
         Group: {
@@ -883,8 +906,16 @@ export interface components {
             /** @description Path (from the host root) of the picture endpoint, `null` when there is no picture. Needs the bearer token. */
             picture_url: string | null;
         };
+        /**
+         * @description Whether `GET /licensees/{id}` will open for the viewer: their own licensees, and for admins, club admins
+         *     and coaches the members sharing a club with them in the current season. Make the row tappable only then
+         *     (anybody else gets `403`).
+         */
+        CanViewProfile: boolean;
         MemberPage: {
-            data: components["schemas"]["MemberSummary"][];
+            data: (components["schemas"]["MemberSummary"] & {
+                can_view_profile: components["schemas"]["CanViewProfile"];
+            })[];
             meta: {
                 page: number;
                 per_page: number;
@@ -1014,8 +1045,9 @@ export interface components {
     };
     parameters: {
         /**
-         * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-         *     (`403` otherwise). Defaults to the account's first licensee.
+         * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+         *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+         *     still accepted, but not every licensee has one (a new applicant does not): send the id.
          */
         XLicensee: string;
         /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
@@ -1180,8 +1212,9 @@ export interface operations {
             query?: never;
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
                 /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
@@ -1212,8 +1245,9 @@ export interface operations {
             query?: never;
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
                 /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
@@ -1244,8 +1278,9 @@ export interface operations {
             query?: never;
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
                 /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
@@ -1285,8 +1320,9 @@ export interface operations {
             };
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
                 /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
@@ -1441,8 +1477,9 @@ export interface operations {
             };
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
                 /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
@@ -1473,8 +1510,9 @@ export interface operations {
             query?: never;
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
                 /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
@@ -1508,8 +1546,9 @@ export interface operations {
             query?: never;
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
                 /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
@@ -1556,8 +1595,9 @@ export interface operations {
             query?: never;
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
                 /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
@@ -1594,8 +1634,9 @@ export interface operations {
             };
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
                 /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
@@ -1637,8 +1678,9 @@ export interface operations {
             query?: never;
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
             };
@@ -1658,8 +1700,9 @@ export interface operations {
             query?: never;
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
             };
@@ -1679,8 +1722,9 @@ export interface operations {
             query?: never;
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
             };
@@ -1706,8 +1750,9 @@ export interface operations {
             query?: never;
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
                 /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
@@ -1738,8 +1783,9 @@ export interface operations {
             query?: never;
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
                 /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
@@ -1776,8 +1822,9 @@ export interface operations {
             };
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
                 /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
@@ -1808,8 +1855,9 @@ export interface operations {
             query?: never;
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
                 /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
@@ -1846,8 +1894,9 @@ export interface operations {
             };
             header?: {
                 /**
-                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
-                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 * @description Id of the licensee the request acts as (`licensees[].id` in `/me`). Must be a licensee of the
+                 *     authenticated account (`403` otherwise). Defaults to the account's first licensee. An FFTA member code is
+                 *     still accepted, but not every licensee has one (a new applicant does not): send the id.
                  */
                 "X-Licensee"?: components["parameters"]["XLicensee"];
                 /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */

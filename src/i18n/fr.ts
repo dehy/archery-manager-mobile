@@ -72,6 +72,7 @@ export const fr = {
     cancel: 'Annuler',
     version: 'Version %{version}',
     pickLicensee: 'Choisir un licencié',
+    pickSeason: 'Choisir une saison',
   },
   events: {
     restricted: 'Réservé à certains groupes',

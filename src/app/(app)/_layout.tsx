@@ -2,6 +2,13 @@ import { Stack } from 'expo-router';
 
 import { useMe } from '@/features/account/queries';
 
+const pickerSheet = {
+  presentation: 'formSheet',
+  headerShown: false,
+  sheetAllowedDetents: 'fitToContents',
+  sheetGrabberVisible: true,
+} as const;
+
 export default function AppLayout() {
   // Loads /me for the whole signed-in area and repairs a stale persisted licensee.
   useMe();
@@ -17,15 +24,8 @@ export default function AppLayout() {
       <Stack.Screen name="advice/index" />
       <Stack.Screen name="advice/[id]" />
       <Stack.Screen name="calendar" />
-      <Stack.Screen
-        name="licensee-picker"
-        options={{
-          presentation: 'formSheet',
-          headerShown: false,
-          sheetAllowedDetents: 'fitToContents',
-          sheetGrabberVisible: true,
-        }}
-      />
+      <Stack.Screen name="licensee-picker" options={pickerSheet} />
+      <Stack.Screen name="season-picker" options={pickerSheet} />
     </Stack>
   );
 }
