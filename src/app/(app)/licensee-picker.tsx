@@ -30,6 +30,7 @@ export default function LicenseePicker() {
             testID={`licensee-option-${l.ffta_member_code}`}
             title={`${l.firstname} ${l.lastname}`}
             detail={l.ffta_member_code === selected ? '✓' : null}
+            kind="action"
             last={i === all.length - 1}
             onPress={async () => {
               if (l.ffta_member_code) await switchLicensee(l.ffta_member_code);

@@ -54,10 +54,28 @@ export type RowProps = {
   onPress?: () => void;
   /** Hide the iOS separator (last row of a section). */
   last?: boolean;
+  /**
+   * `navigation` (default when tappable) shows the iOS disclosure chevron. `action` is for rows
+   * that do something in place or pick a value (pickers, sign out, share): no chevron, as on iOS.
+   */
+  kind?: 'navigation' | 'action';
+  /** Red title for destructive actions (sign out, delete). */
+  destructive?: boolean;
   testID?: string;
 };
 
-export function Row({ title, subtitle, caption, detail, left, onPress, last, testID }: RowProps) {
+export function Row({
+  title,
+  subtitle,
+  caption,
+  detail,
+  left,
+  onPress,
+  last,
+  kind = 'navigation',
+  destructive,
+  testID,
+}: RowProps) {
   const theme = useTheme();
   const content = (
     <View
@@ -72,7 +90,9 @@ export function Row({ title, subtitle, caption, detail, left, onPress, last, tes
     >
       {left}
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text numberOfLines={2}>{title}</Text>
+        <Text numberOfLines={2} style={destructive ? { color: theme.danger } : undefined}>
+          {title}
+        </Text>
         {subtitle ? (
           <Text variant="muted" numberOfLines={2}>
             {subtitle}
@@ -87,7 +107,7 @@ export function Row({ title, subtitle, caption, detail, left, onPress, last, tes
       {detail ? (
         <Text style={{ fontVariant: ['tabular-nums'], fontWeight: '600' }}>{detail}</Text>
       ) : null}
-      {onPress && isIOS ? <Text variant="muted">›</Text> : null}
+      {onPress && isIOS && kind === 'navigation' ? <Text variant="muted">›</Text> : null}
     </View>
   );
 

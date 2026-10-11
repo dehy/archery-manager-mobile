@@ -78,11 +78,13 @@ export default function CalendarSubscriptionScreen() {
             <Row
               testID="calendar-share"
               title={t('calendar.share')}
+              kind="action"
               onPress={() => Share.share({ message: url })}
             />
             <Row
               testID="calendar-regenerate"
               title={t('calendar.regenerate')}
+              kind="action"
               onPress={() =>
                 confirm(
                   t('calendar.regenerateTitle'),
@@ -95,6 +97,8 @@ export default function CalendarSubscriptionScreen() {
             <Row
               testID="calendar-revoke"
               title={t('calendar.revoke')}
+              kind="action"
+              destructive
               onPress={() =>
                 confirm(
                   t('calendar.revokeTitle'),

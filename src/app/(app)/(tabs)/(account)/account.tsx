@@ -104,7 +104,14 @@ export default function AccountScreen() {
       ) : null}
 
       <Section>
-        <Row title={t('common.logout')} onPress={confirmSignOut} last />
+        <Row
+          testID="row-logout"
+          title={t('common.logout')}
+          onPress={confirmSignOut}
+          kind="action"
+          destructive
+          last
+        />
       </Section>
       <Text variant="muted" style={{ textAlign: 'center' }}>
         {t('account.version', { version: Constants.expoConfig?.version ?? '' })}
