@@ -90,4 +90,32 @@ describe('switching licensee with screens mounted', () => {
     await waitFor(() => expect(result.current.home.data?.licensee?.ffta_member_code).toBe('222'));
     expect(result.current.home.isPending).toBe(false);
   });
+
+  it('keeps loading when the current licensee is picked again', async () => {
+    global.fetch = jest.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            state: 'dashboard',
+            season: 2027,
+            licensee: { id: 1, firstname: 'Camille', ffta_member_code: '111' },
+            next_events: [],
+            last_results: [],
+          }),
+          { status: 200 },
+        ),
+    ) as unknown as typeof fetch;
+    await useSession.getState().setLicensee('111');
+
+    const { result } = await renderHook(
+      () => ({ home: useHome(), switchTo: useSwitchLicensee() }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.home.data).toBeDefined());
+
+    await result.current.switchTo('111');
+
+    await waitFor(() => expect(result.current.home.data).toBeDefined());
+    expect(result.current.home.isPending).toBe(false);
+  });
 });

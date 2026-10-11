@@ -26,10 +26,10 @@ export function useSwitchLicensee() {
   const queryClient = useQueryClient();
   const setLicensee = useSession((s) => s.setLicensee);
   return async (code: string) => {
-    // Order matters: drop the previous licensee's data first, then switch. Every query key holds
-    // the licensee, so mounted screens move to new queries and fetch them. Removing after the
-    // switch would delete those new, in-flight queries and leave the screens pending forever.
-    queryClient.removeQueries({ predicate: (q) => q.queryKey[0] !== 'me' });
     await setLicensee(code);
+    // Reset, never remove: resetting clears every cached answer (the previous licensee's data
+    // must not linger) and refetches what is on screen. Removing queries that mounted screens
+    // observe orphans those screens, which then stay pending forever.
+    await queryClient.resetQueries({ predicate: (q) => q.queryKey[0] !== 'me' });
   };
 }
