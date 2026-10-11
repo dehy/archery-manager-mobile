@@ -140,6 +140,26 @@ export const fr = {
     documents: 'Pièces jointes',
     notFound: 'Conseil introuvable.',
   },
+  calendar: {
+    title: 'Abonnement calendrier',
+    intro:
+      "Recevez dans votre application de calendrier les événements auxquels vous êtes inscrit. Le lien est personnel : toute personne qui l'a peut lire votre agenda.",
+    none: "Aucun lien n'a encore été créé.",
+    generate: 'Créer le lien',
+    subscribe: 'Ajouter à mon calendrier',
+    share: 'Partager le lien',
+    regenerate: 'Recréer le lien',
+    regenerateTitle: 'Recréer le lien ?',
+    regenerateBody: "L'ancien lien cessera de fonctionner dans les calendriers qui l'utilisent.",
+    revoke: 'Supprimer le lien',
+    revokeTitle: 'Supprimer le lien ?',
+    revokeBody: 'Les calendriers abonnés ne recevront plus vos événements.',
+    cancel: 'Annuler',
+    current: 'Lien actuel',
+    noCalendarApp:
+      "Aucune application de calendrier n'a pu ouvrir ce lien. Partagez-le pour l'ajouter à la main.",
+    error: "L'opération a échoué. Réessayez.",
+  },
   licensee: {
     forbidden: "Vous n'avez pas accès à ce profil.",
     notFound: 'Profil introuvable.',

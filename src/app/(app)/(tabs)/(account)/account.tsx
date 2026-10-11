@@ -93,6 +93,11 @@ export default function AccountScreen() {
             testID="row-advice"
             title={t('advice.title')}
             onPress={() => router.push('/advice')}
+          />
+          <Row
+            testID="row-calendar"
+            title={t('calendar.title')}
+            onPress={() => router.push('/calendar')}
             last
           />
         </Section>
