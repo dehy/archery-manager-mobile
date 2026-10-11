@@ -14,6 +14,26 @@ export type Attachment = Schemas['Attachment'];
 export type EnumValue = Schemas['EnumValue'];
 export type Group = Schemas['Group'];
 
+export type EventListResponse = Schemas['EventList'];
+export type EventListItem = Schemas['EventListItem'];
+export type EventDetail = Schemas['EventDetail'];
+export type EventResponse = Schemas['EventResponse'];
+export type EventAttachment = Schemas['EventAttachment'];
+export type EventParticipant = Schemas['EventParticipant'];
+export type EventParticipantList = Schemas['EventParticipantList'];
+export type ParticipationAnswer = Schemas['EventParticipationAnswer'];
+export type ParticipationOptions = Schemas['ParticipationOptions'];
+export type ParticipationRequest = Schemas['ParticipationRequest'];
+export type ResultHistory = Schemas['ResultHistory'];
+export type HistoryResult = Schemas['HistoryResult'];
+export type ContestResults = Schemas['ContestResults'];
+export type ContestResult = Schemas['ContestResult'];
+export type PracticeAdviceList = Schemas['PracticeAdviceList'];
+export type PracticeAdviceSummary = Schemas['PracticeAdviceSummary'];
+export type PracticeAdviceResponse = Schemas['PracticeAdviceResponse'];
+export type PracticeAdviceDetail = Schemas['PracticeAdviceDetail'];
+export type CalendarSubscriptionResponse = Schemas['CalendarSubscriptionResponse'];
+
 /** What the app keeps for a session. Not an API payload. */
 export type Tokens = {
   accessToken: string;

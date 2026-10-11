@@ -254,6 +254,263 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The events of a period (calendar)
+         * @description The events overlapping the period, oldest first: those of the clubs the member holds (or held) a
+         *     license in, and the events without any club. Needs a license for the selected season.
+         *
+         *     `participation_state` includes the defaults of the web app (a training defaults to `registered` for the
+         *     members of its assigned groups). `participants_count` counts the *recorded* answers other than
+         *     `not_going`; the participants endpoint also lists the members who only have the default answer.
+         */
+        get: operations["listEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * An event, with the member's answer and what they may answer
+         * @description Needs a license for the selected season. Only the events of the member's clubs and the events without
+         *     club are visible (`403 forbidden` otherwise).
+         */
+        get: operations["getEvent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/participation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Answer an event (RSVP)
+         * @description Sets the selected licensee's answer. The whole answer is sent each time and replaces the previous one, so
+         *     repeating a request is harmless. The rules are those of the web form, and the allowed values of an event
+         *     are in its `participation_options`:
+         *
+         *     - contests (`contest_official`, `contest_hobby`) accept `not_going`, `interested` and `registered`, and a
+         *       `target_type` and a `departure`; the other events accept `not_going` and `registered` only, and no
+         *       `target_type` or `departure`;
+         *     - `activity` must be one of the activities of the member's license for the season of the event; when it
+         *       is omitted the previous one (or the default) is kept.
+         *
+         *     An event restricted to groups the member is not in is refused with `403 event_restricted`, whatever the
+         *     client shows.
+         */
+        put: operations["answerEvent"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/participants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Who answered an event
+         * @description The recorded answers. A training assigned to groups also lists the members of those groups (with a
+         *     license in the event's club for its season) who did not answer, with the default answer
+         *     (`is_default: true`). Names follow the privacy rule of the directory (`Firstname L.`, full names for
+         *     admins and coaches).
+         */
+        get: operations["listEventParticipants"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/attachments/{attachmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A file attached to an event (mandate, results, ...)
+         * @description Streams the file to those who can see the event. Only plain images and PDF files are served `inline`;
+         *     any other type is always sent as a download.
+         */
+        get: operations["getEventAttachment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/calendar-subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The personal calendar feed URL of the selected licensee
+         * @description `url` is an iCal feed (the events the licensee is registered for) to subscribe to from a calendar app,
+         *     `null` while none was generated. **The URL is the credential**: whoever holds it reads the feed. Treat it
+         *     like a password.
+         */
+        get: operations["getCalendarSubscription"];
+        /**
+         * Generate (or regenerate) the calendar feed URL
+         * @description Replaces any previous URL, which stops working.
+         */
+        put: operations["generateCalendarSubscription"];
+        post?: never;
+        /**
+         * Revoke the calendar feed URL
+         * @description The URL stops working. Revoking when there is none is not an error.
+         */
+        delete: operations["revokeCalendarSubscription"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The selected licensee's contest results, over all seasons
+         * @description Newest contest first. Every entry carries its contest and the season it belongs to (`event.season`), so
+         *     a client can chart a season or the whole history. Needs a license for the selected season.
+         */
+        get: operations["listMyResults"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{id}/results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The results of a contest
+         * @description In the order of the web page: age category (youngest first), activity, then archer. Archers are named
+         *     as the viewer may see them (`Firstname L.`; full names for admins and coaches) and sorted by that name.
+         *     `404` when the event is not a contest.
+         */
+        get: operations["listEventResults"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/practice-advices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The practice advice written for the selected licensee
+         * @description Newest first. Needs a license for the selected season.
+         */
+        get: operations["listPracticeAdvices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/practice-advices/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A piece of practice advice
+         * @description Advice is personal: only the licensee it was written for finds it, anybody else gets `404`. The text is
+         *     written in Markdown (`advice_markdown`) and also sent rendered (`advice_html`), sanitized: only
+         *     formatting elements and `https` / `mailto` links survive, so it can be displayed as is.
+         */
+        get: operations["getPracticeAdvice"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/practice-advices/{id}/attachments/{attachmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A file attached to a piece of practice advice
+         * @description Streams the file, for the licensee the advice was written for only (`404` for anybody else). Only plain
+         *     images and PDF files are served `inline`; any other type is always sent as a download.
+         */
+        get: operations["getPracticeAdviceAttachment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -263,7 +520,7 @@ export interface components {
              * @description Stable machine-readable code. Branch on this, never on `message`.
              * @enum {string}
              */
-            error: "authentication_required" | "invalid_token" | "invalid_credentials" | "account_locked" | "too_many_attempts" | "invalid_request" | "invalid_refresh_token" | "bad_request" | "unauthorized" | "forbidden" | "not_found" | "method_not_allowed" | "not_acceptable" | "conflict" | "payload_too_large" | "unsupported_media_type" | "unprocessable_entity" | "too_many_requests" | "service_unavailable" | "http_error" | "server_error";
+            error: "authentication_required" | "invalid_token" | "invalid_credentials" | "account_locked" | "too_many_attempts" | "invalid_request" | "invalid_refresh_token" | "event_restricted" | "validation_failed" | "bad_request" | "unauthorized" | "forbidden" | "not_found" | "method_not_allowed" | "not_acceptable" | "conflict" | "payload_too_large" | "unsupported_media_type" | "unprocessable_entity" | "too_many_requests" | "service_unavailable" | "http_error" | "server_error";
             /** @description English, for logs and developers. Not meant to be shown to users. */
             message: string;
         };
@@ -391,6 +648,185 @@ export interface components {
             participation_state: "not_going" | "interested" | "registered" | null;
             /** @description Participants of the event whose answer is not `not_going` (including those without an answer yet). */
             participants_count: number;
+        };
+        CalendarSubscriptionResponse: {
+            subscription: {
+                /**
+                 * Format: uri
+                 * @description Absolute iCal feed URL, `null` when none is generated. It is the credential.
+                 */
+                url: string | null;
+            };
+        };
+        EventList: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            events: components["schemas"]["EventListItem"][];
+        };
+        /** @description An event of the calendar. */
+        EventListItem: components["schemas"]["EventSummary"] & {
+            /** @description `null` for an event without club (open to every member). */
+            club: components["schemas"]["Reference"] | null;
+            /**
+             * @description `false` when the event is reserved for groups the member is not in: answering it is refused with
+             *     `403 event_restricted`. Show the answer button disabled.
+             */
+            can_participate: boolean;
+        };
+        /** @description An event with everything its screen needs. */
+        EventDetail: components["schemas"]["EventListItem"] & {
+            discipline: components["schemas"]["EnumValue"] | null;
+            /** @description `null` unless the event is a contest. */
+            contest_type: components["schemas"]["EnumValue"] | null;
+            latitude: number | null;
+            longitude: number | null;
+            /** @description Empty when the event is open to everybody. */
+            assigned_groups: components["schemas"]["Reference"][];
+            attachments: components["schemas"]["EventAttachment"][];
+            my_participation: components["schemas"]["EventParticipationAnswer"];
+            participation_options: components["schemas"]["ParticipationOptions"];
+        };
+        EventResponse: {
+            event: components["schemas"]["EventDetail"];
+        };
+        EventAttachment: {
+            id: number;
+            type: components["schemas"]["EnumValue"] | null;
+            file_name: string | null;
+            mime_type: string | null;
+            /** @description Bytes. */
+            size: number | null;
+            /** @description Path (from the host root) of the attachment endpoint. Needs the bearer token. */
+            url: string;
+        };
+        EventParticipationAnswer: {
+            /**
+             * @description `null` means "no answer yet". Trainings default to `registered` for the members of the assigned groups.
+             *     Display labels depend on the event: for a contest `not_going` is "Je n'y vais pas", `interested` "Intéressé"
+             *     and `registered` "Je suis inscrit"; for a training `not_going` is "Absent" and `registered` "Présent".
+             * @enum {string|null}
+             */
+            participation_state: "not_going" | "interested" | "registered" | null;
+            /** @description `true` when nothing was recorded yet and the values are the defaults. */
+            is_default: boolean;
+            activity: components["schemas"]["EnumValue"] | null;
+            target_type: components["schemas"]["EnumValue"] | null;
+            departure: number | null;
+        };
+        /** @description What the member may send to answer this event. */
+        ParticipationOptions: {
+            states: ("not_going" | "interested" | "registered")[];
+            /** @description The activities of the member's license for the season of the event. */
+            activities: components["schemas"]["EnumValue"][];
+            /** @description `null` for events other than contests. */
+            target_types: components["schemas"]["EnumValue"][] | null;
+            /** @description `null` for events other than contests. */
+            departures: number[] | null;
+        };
+        ParticipationRequest: {
+            /** @enum {string} */
+            participation_state: "not_going" | "interested" | "registered";
+            /** @description Code of one of `participation_options.activities`. Omit to keep the current one. */
+            activity?: string;
+            /** @description Contests only; code of one of `participation_options.target_types`. */
+            target_type?: string | null;
+            /** @description Contests only; one of `participation_options.departures`. */
+            departure?: number | null;
+        };
+        EventParticipantList: {
+            participants: components["schemas"]["EventParticipant"][];
+        };
+        EventParticipant: components["schemas"]["EventParticipationAnswer"] & {
+            licensee_id: number;
+            display_name: string;
+        };
+        ResultScores: {
+            id: number;
+            discipline: components["schemas"]["EnumValue"];
+            age_category: components["schemas"]["EnumValue"];
+            activity: components["schemas"]["EnumValue"];
+            /** @description Meters. */
+            distance: number | null;
+            target_type: components["schemas"]["EnumValue"];
+            /** @description Centimeters. */
+            target_size: number | null;
+            score1: number | null;
+            score2: number | null;
+            total: number | null;
+            /** @description Best possible total of the contest format, `null` when unknown (field, 3D...). */
+            max_total: number | null;
+            /** @description First tie-break count, named by `tie_break_labels[0]`. */
+            nb10: number | null;
+            /** @description Second tie-break count, named by `tie_break_labels[1]`. */
+            nb10p: number | null;
+            /** @description Names of the two tie-break counts: `["10", "X"]` for compound, `["9", "10"]` otherwise. */
+            tie_break_labels: string[];
+            /** @description Ranking in the contest, when known. */
+            position: number | null;
+        };
+        HistoryResult: components["schemas"]["ResultScores"] & {
+            event: {
+                id: number;
+                slug: string | null;
+                title: string;
+                /** Format: date-time */
+                starts_at: string | null;
+                /** Format: date-time */
+                ends_at: string | null;
+                season: number | null;
+            } | null;
+        };
+        ResultHistory: {
+            results: components["schemas"]["HistoryResult"][];
+        };
+        ContestResult: components["schemas"]["ResultScores"] & {
+            licensee: {
+                id: number;
+                display_name: string;
+            };
+            /** @description The result is the selected licensee's. */
+            is_mine: boolean;
+        };
+        ContestResults: {
+            results: components["schemas"]["ContestResult"][];
+        };
+        PracticeAdviceSummary: {
+            id: number;
+            title: string;
+            author_firstname: string | null;
+            /** Format: date-time */
+            created_at: string | null;
+            /** Format: date-time */
+            archived_at: string | null;
+            attachments_count: number;
+        };
+        PracticeAdviceDetail: components["schemas"]["PracticeAdviceSummary"] & {
+            /** @description The text as the coach wrote it, in Markdown (GitHub flavor). Older advice may hold HTML. */
+            advice_markdown: string;
+            /**
+             * @description `advice_markdown` rendered to HTML and sanitized (formatting elements, `https` and `mailto` links,
+             *     `https` images): safe to display as is.
+             */
+            advice_html: string;
+            attachments: components["schemas"]["PracticeAdviceAttachment"][];
+        };
+        PracticeAdviceAttachment: {
+            id: number;
+            type: components["schemas"]["EnumValue"] | null;
+            file_name: string | null;
+            mime_type: string | null;
+            /** @description Bytes. */
+            size: number | null;
+            /** @description Path (from the host root) of the attachment endpoint. Needs the bearer token. */
+            url: string;
+        };
+        PracticeAdviceList: {
+            advices: components["schemas"]["PracticeAdviceSummary"][];
+        };
+        PracticeAdviceResponse: {
+            advice: components["schemas"]["PracticeAdviceDetail"];
         };
         ResultSummary: {
             id: number;
@@ -532,9 +968,20 @@ export interface components {
                 "application/json": components["schemas"]["Error"];
             };
         };
+        /** @description The personal calendar feed. */
+        CalendarSubscription: {
+            headers: {
+                "Cache-Control": components["headers"]["PrivateNoStore"];
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["CalendarSubscriptionResponse"];
+            };
+        };
         /**
          * @description Authenticated but not allowed (`forbidden`): no license for the selected season, a licensee that
-         *     is not yours in `X-Licensee`, or no right on the requested licensee.
+         *     is not yours in `X-Licensee`, no right on the requested licensee or event, or (`event_restricted`) an
+         *     answer to an event reserved for other groups.
          */
         Forbidden: {
             headers: {
@@ -574,6 +1021,8 @@ export interface components {
         /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
         XSeason: number;
         LicenseeId: number;
+        EventId: number;
+        PracticeAdviceId: number;
         /** @description Conditional request: answers `304` when the file did not change. */
         IfModifiedSince: string;
     };
@@ -955,6 +1404,459 @@ export interface operations {
             };
             path: {
                 id: components["parameters"]["LicenseeId"];
+                attachmentId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The file, with its own media type. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["CacheControlRevalidate"];
+                    "Last-Modified": components["headers"]["LastModified"];
+                    "Content-Length"?: number;
+                    /** @description `inline` or `attachment`, with the original file name. */
+                    "Content-Disposition"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            304: components["responses"]["NotModified"];
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listEvents: {
+        parameters: {
+            query?: {
+                /** @description First day of the period (inclusive). Defaults to the first day of the current month. */
+                from?: string;
+                /** @description Last day of the period (inclusive). Defaults to the last day of the current month. At most 100 days after `from`. */
+                to?: string;
+            };
+            header?: {
+                /**
+                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
+                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 */
+                "X-Licensee"?: components["parameters"]["XLicensee"];
+                /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
+                "X-Season"?: components["parameters"]["XSeason"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The events of the period. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["PrivateNoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventList"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    getEvent: {
+        parameters: {
+            query?: never;
+            header?: {
+                /**
+                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
+                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 */
+                "X-Licensee"?: components["parameters"]["XLicensee"];
+                /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
+                "X-Season"?: components["parameters"]["XSeason"];
+            };
+            path: {
+                id: components["parameters"]["EventId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The event. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["PrivateNoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    answerEvent: {
+        parameters: {
+            query?: never;
+            header?: {
+                /**
+                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
+                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 */
+                "X-Licensee"?: components["parameters"]["XLicensee"];
+                /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
+                "X-Season"?: components["parameters"]["XSeason"];
+            };
+            path: {
+                id: components["parameters"]["EventId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParticipationRequest"];
+            };
+        };
+        responses: {
+            /** @description The event, with the new answer. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["PrivateNoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            /** @description The answer breaks a rule of the event (`validation_failed`). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listEventParticipants: {
+        parameters: {
+            query?: never;
+            header?: {
+                /**
+                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
+                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 */
+                "X-Licensee"?: components["parameters"]["XLicensee"];
+                /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
+                "X-Season"?: components["parameters"]["XSeason"];
+            };
+            path: {
+                id: components["parameters"]["EventId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The participants. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["PrivateNoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventParticipantList"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getEventAttachment: {
+        parameters: {
+            query?: {
+                /** @description Ask for `Content-Disposition: attachment` instead of `inline`. */
+                download?: boolean;
+            };
+            header?: {
+                /**
+                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
+                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 */
+                "X-Licensee"?: components["parameters"]["XLicensee"];
+                /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
+                "X-Season"?: components["parameters"]["XSeason"];
+                /** @description Conditional request: answers `304` when the file did not change. */
+                "If-Modified-Since"?: components["parameters"]["IfModifiedSince"];
+            };
+            path: {
+                id: components["parameters"]["EventId"];
+                attachmentId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The file, with its own media type. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["CacheControlRevalidate"];
+                    "Last-Modified": components["headers"]["LastModified"];
+                    "Content-Length"?: number;
+                    /** @description `inline` or `attachment`, with the original file name. */
+                    "Content-Disposition"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            304: components["responses"]["NotModified"];
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getCalendarSubscription: {
+        parameters: {
+            query?: never;
+            header?: {
+                /**
+                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
+                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 */
+                "X-Licensee"?: components["parameters"]["XLicensee"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["CalendarSubscription"];
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    generateCalendarSubscription: {
+        parameters: {
+            query?: never;
+            header?: {
+                /**
+                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
+                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 */
+                "X-Licensee"?: components["parameters"]["XLicensee"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["CalendarSubscription"];
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    revokeCalendarSubscription: {
+        parameters: {
+            query?: never;
+            header?: {
+                /**
+                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
+                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 */
+                "X-Licensee"?: components["parameters"]["XLicensee"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revoked. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    listMyResults: {
+        parameters: {
+            query?: never;
+            header?: {
+                /**
+                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
+                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 */
+                "X-Licensee"?: components["parameters"]["XLicensee"];
+                /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
+                "X-Season"?: components["parameters"]["XSeason"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The results. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["PrivateNoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResultHistory"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    listEventResults: {
+        parameters: {
+            query?: never;
+            header?: {
+                /**
+                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
+                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 */
+                "X-Licensee"?: components["parameters"]["XLicensee"];
+                /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
+                "X-Season"?: components["parameters"]["XSeason"];
+            };
+            path: {
+                id: components["parameters"]["EventId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The results; empty while none was entered. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["PrivateNoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContestResults"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listPracticeAdvices: {
+        parameters: {
+            query?: {
+                /** @description Include archived advice. */
+                archived?: boolean;
+            };
+            header?: {
+                /**
+                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
+                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 */
+                "X-Licensee"?: components["parameters"]["XLicensee"];
+                /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
+                "X-Season"?: components["parameters"]["XSeason"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The advice. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["PrivateNoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeAdviceList"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    getPracticeAdvice: {
+        parameters: {
+            query?: never;
+            header?: {
+                /**
+                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
+                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 */
+                "X-Licensee"?: components["parameters"]["XLicensee"];
+                /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
+                "X-Season"?: components["parameters"]["XSeason"];
+            };
+            path: {
+                id: components["parameters"]["PracticeAdviceId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The advice. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["PrivateNoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeAdviceResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getPracticeAdviceAttachment: {
+        parameters: {
+            query?: {
+                /** @description Ask for `Content-Disposition: attachment` instead of `inline`. */
+                download?: boolean;
+            };
+            header?: {
+                /**
+                 * @description FFTA member code of the licensee the request acts as. Must be a licensee of the authenticated account
+                 *     (`403` otherwise). Defaults to the account's first licensee.
+                 */
+                "X-Licensee"?: components["parameters"]["XLicensee"];
+                /** @description The season to use, as the year it ends (the 2026/2027 season is `2027`). Defaults to the current season. */
+                "X-Season"?: components["parameters"]["XSeason"];
+                /** @description Conditional request: answers `304` when the file did not change. */
+                "If-Modified-Since"?: components["parameters"]["IfModifiedSince"];
+            };
+            path: {
+                id: components["parameters"]["PracticeAdviceId"];
                 attachmentId: number;
             };
             cookie?: never;
