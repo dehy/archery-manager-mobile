@@ -26,7 +26,9 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <StatusBar style="auto" />
+      {/* iOS follows the light/dark appearance on its own, and expo-status-bar calls an API that iOS 27
+          deprecated on every screen change (log spam). Android needs it for the icon color. */}
+      {process.env.EXPO_OS === 'android' ? <StatusBar style="auto" /> : null}
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Protected guard={status === 'signedIn'}>
           <Stack.Screen name="(app)" />
