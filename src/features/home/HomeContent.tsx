@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 
 import type { HomeResponse } from '@/api/types';
@@ -58,6 +59,7 @@ function NoLicense({ home }: { home: Extract<Home, { state: 'no_license' }> }) {
 }
 
 function Dashboard({ home }: { home: Extract<Home, { state: 'dashboard' }> }) {
+  const router = useRouter();
   return (
     <>
       <Heading home={home} />
@@ -81,10 +83,21 @@ function Dashboard({ home }: { home: Extract<Home, { state: 'dashboard' }> }) {
               title={r.event?.title ?? ''}
               subtitle={formatResultTarget(r.distance, r.target_type?.label ?? null, r.target_size)}
               detail={r.total != null ? String(r.total) : null}
-              last={i === home.last_results.length - 1}
+              onPress={
+                r.event
+                  ? () =>
+                      router.push({ pathname: '/event/[id]/results', params: { id: r.event!.id } })
+                  : undefined
+              }
             />
           ))
         )}
+        <Row
+          testID="all-results"
+          title={t('results.seeAll')}
+          onPress={() => router.push('/results')}
+          last
+        />
       </Section>
     </>
   );

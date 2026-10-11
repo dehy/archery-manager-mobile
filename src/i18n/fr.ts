@@ -63,6 +63,7 @@ export const fr = {
   },
   account: {
     context: 'Contexte',
+    activity: 'Mon activité',
     licensee: 'Licencié',
     season: 'Saison',
     myProfile: 'Mon profil',
@@ -112,6 +113,18 @@ export const fr = {
     downloading: 'Téléchargement…',
     notFound: 'Document introuvable.',
     error: "Impossible d'ouvrir ce document.",
+  },
+  results: {
+    title: 'Mes résultats',
+    none: 'Aucun résultat pour le moment.',
+    noneThisSeason: 'Aucun résultat pour cette saison.',
+    seeAll: 'Tous mes résultats',
+    progression: 'Progression · %{format}',
+    progressionSummary:
+      'Progression sur %{count} concours en %{format} : de %{first} à %{last} points, meilleur score %{best}.',
+    contestNone: "Aucun résultat n'a été saisi pour ce concours.",
+    notContest: "Cet événement n'est pas un concours.",
+    mine: 'Vous',
   },
   licensee: {
     forbidden: "Vous n'avez pas accès à ce profil.",

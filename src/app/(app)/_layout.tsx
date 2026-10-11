@@ -12,6 +12,8 @@ export default function AppLayout() {
       <Stack.Screen name="licensee/[id]" />
       <Stack.Screen name="event/[id]/index" />
       <Stack.Screen name="event/[id]/participants" />
+      <Stack.Screen name="event/[id]/results" />
+      <Stack.Screen name="results" />
       <Stack.Screen
         name="licensee-picker"
         options={{

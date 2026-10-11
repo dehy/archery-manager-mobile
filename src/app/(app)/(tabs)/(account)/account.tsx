@@ -82,6 +82,17 @@ export default function AccountScreen() {
         </>
       ) : null}
 
+      {data ? (
+        <Section title={t('account.activity')}>
+          <Row
+            testID="row-results"
+            title={t('results.title')}
+            onPress={() => router.push('/results')}
+            last
+          />
+        </Section>
+      ) : null}
+
       <Section>
         <Row title={t('common.logout')} onPress={confirmSignOut} last />
       </Section>
