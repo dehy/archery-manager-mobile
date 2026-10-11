@@ -43,6 +43,7 @@ export default function LoginScreen() {
         name="email"
         render={({ field }) => (
           <TextField
+            testID="login-email"
             label={t('login.email')}
             value={field.value}
             onChangeText={field.onChange}
@@ -60,6 +61,7 @@ export default function LoginScreen() {
         name="password"
         render={({ field }) => (
           <TextField
+            testID="login-password"
             label={t('login.password')}
             value={field.value}
             onChangeText={field.onChange}
