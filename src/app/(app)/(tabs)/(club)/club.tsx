@@ -31,6 +31,9 @@ export default function ClubScreen() {
       placeholder={t('club.search')}
       onChangeText={(e) => setQuery(e.nativeEvent.text)}
       onCancelButtonPress={() => setQuery('')}
+      // Search is the directory's main tool: keep it visible like Contacts does, instead of
+      // hiding it until the list is pulled down.
+      hideWhenScrolling={false}
     />
   );
 

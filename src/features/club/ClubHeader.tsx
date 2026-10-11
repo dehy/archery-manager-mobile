@@ -1,4 +1,5 @@
 import { Image } from 'expo-image';
+import { useState } from 'react';
 import { View } from 'react-native';
 
 import type { ClubOverview } from '@/api/types';
@@ -8,6 +9,8 @@ import { Text, spacing } from '@/ui';
 
 export function ClubHeader({ overview }: { overview: ClubOverview }) {
   const { club } = overview;
+  // A logo that fails to load leaves no blank box next to the name.
+  const [logoFailed, setLogoFailed] = useState(false);
   return (
     <View
       style={{
@@ -18,9 +21,10 @@ export function ClubHeader({ overview }: { overview: ClubOverview }) {
         paddingBottom: spacing.md,
       }}
     >
-      {club.logo_url ? (
+      {club.logo_url && !logoFailed ? (
         <Image
           source={{ uri: api.fileUrl(club.logo_url) }}
+          onError={() => setLogoFailed(true)}
           style={{ width: 48, height: 48, borderRadius: 8 }}
           contentFit="contain"
           accessibilityLabel={club.name}
