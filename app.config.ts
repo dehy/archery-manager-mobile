@@ -12,6 +12,12 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'net.admds.quiver',
+    infoPlist: {
+      // French first: system-provided UI (back button, VoiceOver hints) follows the device language
+      // instead of falling back to English.
+      CFBundleDevelopmentRegion: 'fr',
+      CFBundleAllowMixedLocalizations: true,
+    },
   },
   android: {
     package: 'net.admds.quiver',
