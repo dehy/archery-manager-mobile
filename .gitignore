@@ -21,3 +21,6 @@ expo-env.d.ts
 # Continuous native generation: never commit generated native projects
 /ios
 /android
+
+# Maestro artifacts (screenshots, debug output)
+/maestro-output/

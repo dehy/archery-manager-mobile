@@ -47,17 +47,20 @@ Compte → "Mon activité" (Mes résultats, Conseils, Abonnement calendrier).
 
 ## API findings and requests
 
-1. **Directory → profile dead end.** An ordinary member gets `403` on every other member's profile, but the
-   directory cannot know that before the tap. Request: a flag such as `can_view_profile` on `MemberSummary`
-   (or the viewer's roles in `/me`), so rows are only tappable when the profile will open.
-2. **`participants_count` differs between endpoints.** `EventSummary` (home) documents it as including members
-   without an answer yet; `/events` documents it as recorded answers other than `not_going`. Please align the
-   definition or document the difference, since both appear side by side in the app.
-3. **All-day events end at midnight of the next day** (exclusive end, e.g. `2026-10-10T00:00` →
-   `2026-10-11T00:00`). The app handles it; documenting it in `EventSummary.ends_at` would help other clients.
-4. **Fixtures**: no account has results or practice advice, so these screens are only covered by unit tests
-   on the contract shapes. Fixtures with a few results (two formats in one season) and an advice with an
-   attachment would allow checking them against real data.
-5. **Club logo**: `/uploads/les-archers-de-guyenne.svg` answers `404` locally (fixture file missing, or a
-   wrong path); the app shows no logo in that case.
-6. Still open from phase 2: licensee ids in `/me`, and the list of a licensee's seasons.
+Answered by the API (PR #153, synced 2026-10-11):
+
+- ~~Directory → profile dead end~~: `can_view_profile` on directory, participant and contest result rows;
+  the app makes those rows tappable only when it is true.
+- ~~`participants_count` differs between endpoints~~: now recorded answers only, everywhere.
+- ~~All-day end~~: documented as **inclusive** (a Saturday–Sunday contest ends on Sunday's date); the app
+  reads it that way.
+- ~~Fixtures~~: `make fixtures` now loads results (two formats in one season) and an advice with an attachment.
+- ~~Licensee ids and seasons in `/me`~~ (phase 2): `X-Licensee` takes the licensee id, `/me` lists each
+  licensee's seasons; the app sends ids and has a season picker.
+
+Still open:
+
+1. **Club logo path**: `club.logo_url` is `/uploads/les-archers-de-guyenne.svg` (`404`) while the file is
+   served at `/uploads/clubs/les-archers-de-guyenne.svg` (`200`). `ClubPresenter` builds it with
+   `UploaderHelper::asset($club, 'logo')`, so the Vich mapping's URI prefix likely lacks `/clubs`. The app
+   resolves the path against the API host and shows no logo while it 404s.
