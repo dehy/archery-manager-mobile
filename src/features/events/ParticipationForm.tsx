@@ -82,7 +82,7 @@ export function ParticipationForm({ event }: { event: EventDetail }) {
   };
 
   return (
-    <View style={{ gap: spacing.md, paddingHorizontal: 16 }}>
+    <View style={{ gap: spacing.md, paddingHorizontal: 16, paddingVertical: spacing.md }}>
       {!event.can_participate ? <Text variant="muted">{t('events.restrictedBody')}</Text> : null}
 
       <ChipGroup
