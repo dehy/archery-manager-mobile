@@ -126,6 +126,20 @@ export const fr = {
     notContest: "Cet événement n'est pas un concours.",
     mine: 'Vous',
   },
+  advice: {
+    title: 'Conseils',
+    none: 'Aucun conseil de votre entraîneur pour le moment.',
+    noneArchived: 'Aucun conseil, archives comprises.',
+    showArchived: 'Afficher les archives',
+    archived: 'Archivé',
+    by: 'Par %{name}',
+    attachments: {
+      one: '1 pièce jointe',
+      other: '%{count} pièces jointes',
+    },
+    documents: 'Pièces jointes',
+    notFound: 'Conseil introuvable.',
+  },
   licensee: {
     forbidden: "Vous n'avez pas accès à ce profil.",
     notFound: 'Profil introuvable.',
