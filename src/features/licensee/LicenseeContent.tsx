@@ -1,33 +1,17 @@
-import { useState } from 'react';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 
-import { ApiError } from '@/api/errors';
 import type { LicenseeProfile } from '@/api/types';
 import { initials } from '@/features/club/initials';
+import { useOpenAttachment } from '@/features/files/useOpenAttachment';
 import { formatSeason } from '@/features/home/format';
 import { t } from '@/i18n';
 import { Avatar, Row, Section, Text, spacing } from '@/ui';
 
 import { formatDocumentDate, formatSize } from './format';
-import { openAttachment } from './openAttachment';
 
 export function LicenseeContent({ licensee }: { licensee: LicenseeProfile }) {
-  const [downloading, setDownloading] = useState<number | null>(null);
+  const { open, downloading } = useOpenAttachment();
   const { license } = licensee;
-
-  const open = async (attachmentId: number) => {
-    const attachment = licensee.attachments.find((a) => a.id === attachmentId);
-    if (!attachment || downloading !== null) return;
-    setDownloading(attachmentId);
-    try {
-      await openAttachment(attachment);
-    } catch (error) {
-      const missing = error instanceof ApiError && error.status === 404;
-      Alert.alert(missing ? t('licensee.attachmentNotFound') : t('licensee.attachmentError'));
-    } finally {
-      setDownloading(null);
-    }
-  };
 
   const licenseRows: [string, string | null | undefined][] = license
     ? [
@@ -88,12 +72,12 @@ export function LicenseeContent({ licensee }: { licensee: LicenseeProfile }) {
               title={a.type?.label ?? a.file_name ?? ''}
               subtitle={
                 downloading === a.id
-                  ? t('licensee.downloading')
+                  ? t('files.downloading')
                   : [formatDocumentDate(a.document_date), formatSize(a.size)]
                       .filter(Boolean)
                       .join(' · ')
               }
-              onPress={() => open(a.id)}
+              onPress={() => open(a)}
               last={i === licensee.attachments.length - 1}
             />
           ))

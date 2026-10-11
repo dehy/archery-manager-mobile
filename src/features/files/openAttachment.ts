@@ -2,7 +2,6 @@ import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
 import { api } from '@/auth/session';
-import type { Attachment } from '@/api/types';
 
 /** Keeps letters, digits, dots, dashes and underscores: file names come from users. */
 export function safeFileName(name: string | null, fallback: string): string {
@@ -14,7 +13,14 @@ export function safeFileName(name: string | null, fallback: string): string {
  * Downloads an attachment with the bearer token into the cache, then hands it to the system
  * (share sheet / viewer). Throws ApiError (404, 403...) like any other API call.
  */
-export async function openAttachment(attachment: Attachment): Promise<void> {
+export type FileAttachment = {
+  id: number;
+  url: string;
+  file_name: string | null;
+  mime_type: string | null;
+};
+
+export async function openAttachment(attachment: FileAttachment): Promise<void> {
   const bytes = await api.requestFile(attachment.url);
   const file = new File(
     Paths.cache,

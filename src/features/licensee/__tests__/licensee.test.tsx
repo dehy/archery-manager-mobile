@@ -6,10 +6,10 @@ import type { LicenseeProfile } from '@/api/types';
 
 import { formatDocumentDate, formatSize } from '../format';
 import { LicenseeContent } from '../LicenseeContent';
-import { openAttachment, safeFileName } from '../openAttachment';
+import { openAttachment, safeFileName } from '@/features/files/openAttachment';
 
-jest.mock('../openAttachment', () => ({
-  ...jest.requireActual('../openAttachment'),
+jest.mock('@/features/files/openAttachment', () => ({
+  ...jest.requireActual('@/features/files/openAttachment'),
   openAttachment: jest.fn(),
 }));
 
