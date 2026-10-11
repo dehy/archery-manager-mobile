@@ -22,7 +22,7 @@ export default function LicenseePicker() {
             key={l.id}
             testID={`licensee-option-${l.id}`}
             title={`${l.firstname} ${l.lastname}`}
-            detail={l.id === selected ? '✓' : null}
+            selected={l.id === selected}
             kind="action"
             last={i === licensees.length - 1}
             onPress={async () => {

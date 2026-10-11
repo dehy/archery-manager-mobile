@@ -24,7 +24,7 @@ export default function SeasonPicker() {
             key={s}
             testID={`season-option-${s}`}
             title={formatSeason(s)}
-            detail={s === selected ? '✓' : null}
+            selected={s === selected}
             kind="action"
             last={i === seasons.length - 1}
             onPress={async () => {

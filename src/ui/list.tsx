@@ -61,6 +61,11 @@ export type RowProps = {
   kind?: 'navigation' | 'action';
   /** Red title for destructive actions (sign out, delete). */
   destructive?: boolean;
+  /**
+   * Picker rows: shows a checkmark and announces the row as selected. The glyph is hidden from
+   * screen readers, which read the selected state instead.
+   */
+  selected?: boolean;
   testID?: string;
 };
 
@@ -74,6 +79,7 @@ export function Row({
   last,
   kind = 'navigation',
   destructive,
+  selected,
   testID,
 }: RowProps) {
   const theme = useTheme();
@@ -107,6 +113,15 @@ export function Row({
       {detail ? (
         <Text style={{ fontVariant: ['tabular-nums'], fontWeight: '600' }}>{detail}</Text>
       ) : null}
+      {selected ? (
+        <Text
+          accessibilityElementsHidden
+          importantForAccessibility="no"
+          style={{ color: theme.primary, fontWeight: '600' }}
+        >
+          ✓
+        </Text>
+      ) : null}
       {onPress && isIOS && kind === 'navigation' ? <Text variant="muted">›</Text> : null}
     </View>
   );
@@ -130,6 +145,7 @@ export function Row({
     <View testID={testID}>
       <Pressable
         accessibilityRole="button"
+        accessibilityState={selected === undefined ? undefined : { selected }}
         onPress={onPress}
         android_ripple={{ color: '#00000014' }}
         style={({ pressed }) => ({ opacity: isIOS && pressed ? 0.6 : 1 })}
