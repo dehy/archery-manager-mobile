@@ -5,7 +5,9 @@ import type { ReactNode } from 'react';
 import { useSession } from '@/auth/session';
 import { loadLicensee, saveLicensee } from '@/auth/tokenStorage';
 
-import { useMe } from '../queries';
+import { useHome } from '@/features/home/useHome';
+
+import { useMe, useSwitchLicensee } from '../queries';
 
 const me = {
   user: { id: 1, email: 'a@b.c', firstname: 'Camille', lastname: 'Roux' },
@@ -60,5 +62,32 @@ describe('licensee choice', () => {
     const { result } = await renderHook(() => useMe(), { wrapper });
     await waitFor(() => expect(result.current.data).toBeDefined());
     expect(useSession.getState().licensee).toBe('222');
+  });
+});
+
+describe('switching licensee with screens mounted', () => {
+  it("loads the new licensee's data instead of hanging", async () => {
+    const home = (licensee: string) => ({
+      state: 'dashboard',
+      season: 2027,
+      licensee: { id: licensee === '111' ? 1 : 2, firstname: licensee, ffta_member_code: licensee },
+      next_events: [],
+      last_results: [],
+    });
+    global.fetch = jest.fn(async (_url: string, init: { headers: Record<string, string> }) => {
+      const licensee = init.headers['X-Licensee'] ?? '111';
+      return new Response(JSON.stringify(home(licensee)), { status: 200 });
+    }) as unknown as typeof fetch;
+
+    const { result } = await renderHook(
+      () => ({ home: useHome(), switchTo: useSwitchLicensee() }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.home.data?.licensee?.ffta_member_code).toBe('111'));
+
+    await result.current.switchTo('222');
+
+    await waitFor(() => expect(result.current.home.data?.licensee?.ffta_member_code).toBe('222'));
+    expect(result.current.home.isPending).toBe(false);
   });
 });
