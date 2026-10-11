@@ -9,6 +9,8 @@ export type HomeResponse = Schemas['Home'];
 export type ClubOverview = Schemas['ClubOverview'];
 export type MemberPage = Schemas['MemberPage'];
 export type MemberSummary = Schemas['MemberSummary'];
+/** A directory row: a member plus whether the viewer may open their profile. */
+export type DirectoryMember = MemberPage['data'][number];
 export type LicenseeProfile = Schemas['LicenseeProfile'];
 export type Attachment = Schemas['Attachment'];
 export type EnumValue = Schemas['EnumValue'];

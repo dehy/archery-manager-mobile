@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo } from 'react';
 
 import { ApiError } from '@/api/errors';
@@ -16,6 +16,7 @@ import { t } from '@/i18n';
 import { Badge, Message, Row, ScrollScreen, Section, SkeletonRows, Text } from '@/ui';
 
 export default function ContestResultsScreen() {
+  const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const event = useEvent(Number(id));
   const { data, error, isPending, isRefetching, refetch } = useContestResults(Number(id));
@@ -59,6 +60,11 @@ export default function ContestResultsScreen() {
               }
               detail={scoreLine(r)}
               left={r.is_mine ? <Badge label={t('results.mine')} /> : undefined}
+              onPress={
+                r.licensee.can_view_profile
+                  ? () => router.push({ pathname: '/licensee/[id]', params: { id: r.licensee.id } })
+                  : undefined
+              }
               last={i === g.results.length - 1}
             />
           ))}

@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo } from 'react';
 
 import type { EventParticipant } from '@/api/types';
@@ -11,6 +11,7 @@ import { Message, Row, ScrollScreen, Section, SkeletonRows } from '@/ui';
 const ORDER = ['registered', 'interested', 'not_going'] as const;
 
 export default function ParticipantsScreen() {
+  const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const event = useEvent(Number(id));
   const { data, error, isPending, isRefetching, refetch } = useParticipants(Number(id));
@@ -61,6 +62,11 @@ export default function ParticipantsScreen() {
                 ]
                   .filter(Boolean)
                   .join(' · ') || null
+              }
+              onPress={
+                p.can_view_profile
+                  ? () => router.push({ pathname: '/licensee/[id]', params: { id: p.licensee_id } })
+                  : undefined
               }
               last={i === g.items.length - 1}
             />

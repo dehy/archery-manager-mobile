@@ -2,7 +2,7 @@ import { Stack, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 
-import type { MemberSummary } from '@/api/types';
+import type { DirectoryMember } from '@/api/types';
 import { ClubHeader } from '@/features/club/ClubHeader';
 import { GroupFilters } from '@/features/club/GroupFilters';
 import { initials } from '@/features/club/initials';
@@ -74,7 +74,7 @@ export default function ClubScreen() {
     </View>
   );
 
-  const renderItem = ({ item, index }: { item: MemberSummary; index: number }) => (
+  const renderItem = ({ item, index }: { item: DirectoryMember; index: number }) => (
     <GroupedItem index={index} count={items.length}>
       <Row
         testID={`member-${item.id}`}
@@ -82,7 +82,12 @@ export default function ClubScreen() {
         subtitle={item.groups.map((g) => g.name).join(', ') || null}
         caption={item.activities.map((a) => a.label).join(' · ') || null}
         left={<Avatar pictureUrl={item.picture_url} initials={initials(item.display_name)} />}
-        onPress={() => router.push({ pathname: '/licensee/[id]', params: { id: item.id } })}
+        // Only rows whose profile will open are tappable (ordinary members see no profiles).
+        onPress={
+          item.can_view_profile
+            ? () => router.push({ pathname: '/licensee/[id]', params: { id: item.id } })
+            : undefined
+        }
         last={index === items.length - 1 && !members.hasNextPage}
       />
     </GroupedItem>
