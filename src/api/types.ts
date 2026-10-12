@@ -7,6 +7,7 @@ export type TokenResponse = Schemas['TokenPair'];
 export type MeResponse = Schemas['Me'];
 export type HomeResponse = Schemas['Home'];
 export type ClubOverview = Schemas['ClubOverview'];
+export type Club = Schemas['Club'];
 export type MemberPage = Schemas['MemberPage'];
 export type MemberSummary = Schemas['MemberSummary'];
 /** A directory row: a member plus whether the viewer may open their profile. */

@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 
-import type { HomeResponse } from '@/api/types';
+import type { Club, HomeResponse } from '@/api/types';
+import { ClubBadge } from '@/features/club/ClubBadge';
 import { EventRow } from '@/features/events/EventRow';
 import { applicationStatusLabel } from '@/features/labels';
 import { t } from '@/i18n';
@@ -11,24 +12,28 @@ import { formatResultTarget, formatSeason } from './format';
 
 type Home = HomeResponse;
 
-export function HomeContent({ home }: { home: Home }) {
+/** `club` is the selected licensee's club, shown as a badge on the dashboard once loaded. */
+export function HomeContent({ home, club }: { home: Home; club?: Club }) {
   switch (home.state) {
     case 'blank_account':
       return <Message title={t('home.blankTitle')} body={t('home.blankBody')} />;
     case 'no_license':
       return <NoLicense home={home} />;
     case 'dashboard':
-      return <Dashboard home={home} />;
+      return <Dashboard home={home} club={club} />;
   }
 }
 
-function Heading({ home }: { home: Exclude<Home, { state: 'blank_account' }> }) {
+function Heading({ home, club }: { home: Exclude<Home, { state: 'blank_account' }>; club?: Club }) {
   return (
-    <View style={{ paddingHorizontal: 16, paddingBottom: spacing.md, gap: 2 }}>
-      <Text variant="title" style={{ fontSize: 22 }}>
-        {t('home.greeting', { name: home.licensee.firstname ?? '' }).trim()}
-      </Text>
-      <Text variant="muted">{t('home.season', { season: formatSeason(home.season) })}</Text>
+    <View style={{ paddingHorizontal: 16, paddingBottom: spacing.md, gap: spacing.sm }}>
+      <View style={{ gap: 2 }}>
+        <Text variant="title" style={{ fontSize: 22 }}>
+          {t('home.greeting', { name: home.licensee.firstname ?? '' }).trim()}
+        </Text>
+        <Text variant="muted">{t('home.season', { season: formatSeason(home.season) })}</Text>
+      </View>
+      {club ? <ClubBadge club={club} /> : null}
     </View>
   );
 }
@@ -58,11 +63,11 @@ function NoLicense({ home }: { home: Extract<Home, { state: 'no_license' }> }) {
   );
 }
 
-function Dashboard({ home }: { home: Extract<Home, { state: 'dashboard' }> }) {
+function Dashboard({ home, club }: { home: Extract<Home, { state: 'dashboard' }>; club?: Club }) {
   const router = useRouter();
   return (
     <>
-      <Heading home={home} />
+      <Heading home={home} club={club} />
       <Section title={t('home.nextEvents')}>
         {home.next_events.length === 0 ? (
           <Row title={t('home.noEvents')} last />

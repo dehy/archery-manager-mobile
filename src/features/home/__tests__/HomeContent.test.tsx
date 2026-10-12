@@ -91,4 +91,26 @@ describe('HomeContent', () => {
     expect(screen.getByText('Aucun événement à venir.')).toBeTruthy();
     expect(screen.getByText('Aucun résultat pour le moment.')).toBeTruthy();
   });
+
+  it('shows the club badge once the club is known', async () => {
+    const home: HomeResponse = {
+      state: 'dashboard',
+      season: 2027,
+      licensee,
+      next_events: [],
+      last_results: [],
+    };
+    const club = {
+      id: 3,
+      name: 'Les Archers de Guyenne',
+      city: 'Bordeaux',
+      contact_email: null,
+      ffta_code: null,
+      primary_color: '#0a7d33',
+      logo_url: null,
+    };
+    await render(<HomeContent home={home} club={club} />);
+    expect(screen.getByLabelText('Les Archers de Guyenne')).toBeTruthy();
+    expect(screen.getByText('LG')).toBeTruthy();
+  });
 });

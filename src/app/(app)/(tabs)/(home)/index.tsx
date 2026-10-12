@@ -1,3 +1,4 @@
+import { useClub } from '@/features/club/queries';
 import { HomeContent } from '@/features/home/HomeContent';
 import { useHome } from '@/features/home/useHome';
 import { loadErrorMessage } from '@/features/errors';
@@ -6,6 +7,7 @@ import { Message, ScrollScreen, SkeletonRows } from '@/ui';
 
 export default function HomeScreen() {
   const { data, error, isPending, isRefetching, refetch } = useHome();
+  const club = useClub();
 
   return (
     <ScrollScreen refreshing={isRefetching} onRefresh={refetch}>
@@ -17,7 +19,7 @@ export default function HomeScreen() {
           onAction={refetch}
         />
       ) : null}
-      {data ? <HomeContent home={data} /> : null}
+      {data ? <HomeContent home={data} club={club.data?.club} /> : null}
     </ScrollScreen>
   );
 }
