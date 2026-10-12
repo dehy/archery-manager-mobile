@@ -8,11 +8,11 @@
     },
     "preview": {
       "distribution": "internal",
-      "env": { "EXPO_PUBLIC_API_URL": "https://staging.invalid" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://app.staging.karkwa.fr" }
     },
     "production": {
       "autoIncrement": true,
-      "env": { "EXPO_PUBLIC_API_URL": "https://production.invalid" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://app.karkwa.fr" }
     }
   }
 }
