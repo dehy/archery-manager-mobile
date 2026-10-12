@@ -24,3 +24,7 @@ expo-env.d.ts
 
 # Maestro artifacts (screenshots, debug output)
 /maestro-output/
+
+# Local environment (may hold secrets)
+.env
+.env*.local
