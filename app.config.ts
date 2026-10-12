@@ -12,7 +12,12 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'net.admds.quiver',
+    // Signing team (Arnaud DE MOUHY, individual membership). Not a secret: it is in every signed build.
+    appleTeamId: 'E9GCQH28SQ',
     infoPlist: {
+      // Shown by iOS the first time the app reaches a server on the local network (dev backends).
+      NSLocalNetworkUsageDescription:
+        'Quiver se connecte au serveur de votre club sur le réseau local pendant le développement.',
       // French first: system-provided UI (back button, VoiceOver hints) follows the device language
       // instead of falling back to English.
       CFBundleDevelopmentRegion: 'fr',
