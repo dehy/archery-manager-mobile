@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Linking, Platform, View } from 'react-native';
+import { Linking, Platform, Pressable, View } from 'react-native';
 
 import type { EventDetail } from '@/api/types';
 import { useOpenAttachment } from '@/features/files/useOpenAttachment';
@@ -7,7 +7,7 @@ import { formatEventWhen } from '@/features/home/format';
 import { formatSize } from '@/features/licensee/format';
 import { eventTypeLabel } from '@/features/labels';
 import { t } from '@/i18n';
-import { Row, Section, Text, spacing } from '@/ui';
+import { Icon, Row, RowIcon, Section, Text, isIOS, spacing, useTheme } from '@/ui';
 
 import { mapsUrl } from './maps';
 import { ParticipationForm } from './ParticipationForm';
@@ -16,33 +16,76 @@ const CONTEST_TYPES = ['contest_official', 'contest_hobby'];
 
 export function EventContent({ event }: { event: EventDetail }) {
   const router = useRouter();
+  const theme = useTheme();
   const { open, downloading } = useOpenAttachment();
   const when = formatEventWhen(event.starts_at, event.ends_at, event.all_day, t('home.allDay'));
   const isContest = CONTEST_TYPES.includes(event.type);
   const started = !!event.starts_at && new Date(event.starts_at) <= new Date();
   const url = mapsUrl(event, Platform.OS === 'ios' ? 'ios' : 'android');
-
-  const info: [string, string | null | undefined][] = [
-    [t('events.type'), eventTypeLabel(event.type)],
-    [t('events.discipline'), event.discipline?.label],
-    [t('events.contestType'), event.contest_type?.label],
-    [t('events.club'), event.club?.name],
-    [
-      t('events.groups'),
-      event.assigned_groups.length
-        ? event.assigned_groups.map((g) => g.name).join(', ')
-        : t('events.everybody'),
-    ],
-  ];
-  const shown = info.filter(([, v]) => v);
+  const openMaps = url ? () => Linking.openURL(url) : undefined;
+  const kind = [eventTypeLabel(event.type), event.discipline?.label, event.contest_type?.label]
+    .filter(Boolean)
+    .join(' · ');
+  const groups = event.assigned_groups.length
+    ? event.assigned_groups.map((g) => g.name).join(', ')
+    : t('events.everybody');
 
   return (
     <>
-      <View style={{ paddingHorizontal: 16, paddingBottom: spacing.md, gap: 4 }}>
-        <Text accessibilityRole="header" style={{ fontSize: 22, fontWeight: '600' }}>
+      <View style={{ paddingHorizontal: 16, paddingBottom: spacing.lg, gap: 8 }}>
+        <Text
+          style={{
+            fontSize: 13,
+            fontWeight: '700',
+            letterSpacing: 0.4,
+            textTransform: 'uppercase',
+            color: theme.primary,
+          }}
+        >
+          {kind}
+        </Text>
+        <Text
+          accessibilityRole="header"
+          style={{ fontSize: 28, fontWeight: isIOS ? '700' : '400' }}
+        >
           {event.title}
         </Text>
-        <Text variant="muted">{when}</Text>
+        <View style={{ gap: 6, marginTop: 4 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Icon name="calendar" size={16} />
+            <Text variant="muted" style={{ flex: 1, fontSize: 15 }}>
+              {when}
+            </Text>
+          </View>
+          {event.address ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Icon name="place" size={16} />
+              <Text variant="muted" style={{ flex: 1, fontSize: 15 }} numberOfLines={1}>
+                {event.address.split('\n')[0]}
+              </Text>
+              {openMaps ? (
+                <Pressable
+                  testID="event-directions"
+                  accessibilityRole="button"
+                  onPress={openMaps}
+                  style={{
+                    height: 30,
+                    paddingHorizontal: 12,
+                    borderRadius: 15,
+                    justifyContent: 'center',
+                    backgroundColor: theme.primaryContainer,
+                  }}
+                >
+                  <Text
+                    style={{ fontSize: 15, fontWeight: '600', color: theme.onPrimaryContainer }}
+                  >
+                    {t('events.directions')}
+                  </Text>
+                </Pressable>
+              ) : null}
+            </View>
+          ) : null}
+        </View>
       </View>
 
       <Section title={t('events.myAnswer')}>
@@ -53,14 +96,16 @@ export function EventContent({ event }: { event: EventDetail }) {
         {event.address ? (
           <Row
             testID="event-address"
+            left={<RowIcon name="place" />}
             title={t('events.where')}
             subtitle={event.address}
-            onPress={url ? () => Linking.openURL(url) : undefined}
+            onPress={openMaps}
           />
         ) : null}
-        {shown.map(([label, value], i) => (
-          <Row key={label} title={label} subtitle={value} last={i === shown.length - 1} />
-        ))}
+        {event.club ? (
+          <Row left={<RowIcon name="club" />} title={t('events.club')} subtitle={event.club.name} />
+        ) : null}
+        <Row left={<RowIcon name="groups" />} title={t('events.groups')} subtitle={groups} last />
       </Section>
 
       <Section>
@@ -93,6 +138,7 @@ export function EventContent({ event }: { event: EventDetail }) {
             <Row
               key={a.id}
               testID={`event-attachment-${a.id}`}
+              left={<RowIcon name="document" />}
               title={a.type?.label ?? a.file_name ?? ''}
               subtitle={
                 downloading === a.id

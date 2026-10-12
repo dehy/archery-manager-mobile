@@ -19,7 +19,7 @@ Install Expo-aware packages with `npx expo install`.
 - `src/api/` fetch client (bearer, single-flight refresh, typed `ApiError`), config, types
 - `src/auth/` secure token storage and the zustand session store (`api` singleton lives in `session.ts`)
 - `src/features/<name>/` queries, formatting and content components per area (home, club, licensee, account, events, results, advice, calendar, files)
-- `src/ui/` theme, list primitives (`Section`/`Row`/`Chip`), `Avatar`, `BarChart`, `html/` (native renderer for the API's sanitized HTML), `nav/` (isolates unstable Expo Router APIs); `src/i18n/` French-first strings (no hardcoded UI text)
+- `src/ui/` theme, list primitives (`Section`/`Row`/`Chip`), native controls (`controls.tsx`: `Segmented`, `PickerRow`, on `@expo/ui`), `Icon`/`RowIcon` (SF Symbols / Material Symbols via `expo-symbols`, names mapped in `Icon.tsx`), `Avatar`, `BarChart`, `html/` (native renderer for the API's sanitized HTML), `nav/` (isolates unstable Expo Router APIs); `src/i18n/` French-first strings (no hardcoded UI text)
 
 ## Conventions
 

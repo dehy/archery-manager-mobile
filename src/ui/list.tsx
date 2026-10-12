@@ -48,6 +48,8 @@ export type RowProps = {
   subtitle?: string | null;
   /** Extra line, smaller (e.g. participation). */
   caption?: string | null;
+  /** Content under the text lines (e.g. an event's status pill). */
+  footer?: ReactNode;
   /** Right-aligned value. */
   detail?: string | null;
   left?: ReactNode;
@@ -73,6 +75,7 @@ export function Row({
   title,
   subtitle,
   caption,
+  footer,
   detail,
   left,
   onPress,
@@ -109,6 +112,7 @@ export function Row({
             {caption}
           </Text>
         ) : null}
+        {footer}
       </View>
       {detail ? (
         <Text style={{ fontVariant: ['tabular-nums'], fontWeight: '600' }}>{detail}</Text>

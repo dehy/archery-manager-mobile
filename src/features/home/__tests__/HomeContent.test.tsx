@@ -73,7 +73,10 @@ describe('HomeContent', () => {
     };
     await render(<HomeContent home={home} />);
     expect(screen.getByText('Entraînement salle')).toBeTruthy();
-    expect(screen.getByText(/Présent · 22 participants/)).toBeTruthy();
+    // Registered: it is the "next event" card, with its pill and participant count.
+    expect(screen.getByTestId('next-event')).toBeTruthy();
+    expect(screen.getByText('Présent')).toBeTruthy();
+    expect(screen.getByText('22 participants')).toBeTruthy();
     expect(screen.getByText('Championnat départemental')).toBeTruthy();
     expect(screen.getByText('568')).toBeTruthy();
     expect(screen.getByText('18 m · Trispot 40 cm')).toBeTruthy();
@@ -88,6 +91,8 @@ describe('HomeContent', () => {
       last_results: [],
     };
     await render(<HomeContent home={home} />);
+    expect(screen.getByText('Aucune inscription à venir.')).toBeTruthy();
+    expect(screen.getByText('Voir le calendrier')).toBeTruthy();
     expect(screen.getByText('Aucun événement à venir.')).toBeTruthy();
     expect(screen.getByText('Aucun résultat pour le moment.')).toBeTruthy();
   });
@@ -112,5 +117,34 @@ describe('HomeContent', () => {
     await render(<HomeContent home={home} club={club} />);
     expect(screen.getByLabelText('Les Archers de Guyenne')).toBeTruthy();
     expect(screen.getByText('LG')).toBeTruthy();
+  });
+
+  it('lists the events that are not the next registered one, with their date', async () => {
+    const home: HomeResponse = {
+      state: 'dashboard',
+      season: 2027,
+      licensee,
+      next_events: [
+        {
+          id: 11,
+          slug: 'concours-pessac',
+          title: 'Concours de Pessac',
+          type: 'contest_official',
+          starts_at: '2026-11-29T08:30:00+01:00',
+          ends_at: null,
+          all_day: false,
+          address: 'Complexe sportif',
+          participation_state: null,
+          participants_count: 4,
+        },
+      ],
+      last_results: [],
+    };
+    await render(<HomeContent home={home} />);
+    expect(screen.getByText('Aucune inscription à venir.')).toBeTruthy();
+    expect(screen.getByText('Concours de Pessac')).toBeTruthy();
+    expect(screen.getByText('08:30 · Complexe sportif')).toBeTruthy();
+    expect(screen.getByText('Pas de réponse')).toBeTruthy();
+    expect(screen.getByText('NOV.', { includeHiddenElements: true })).toBeTruthy();
   });
 });

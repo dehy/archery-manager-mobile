@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 
 import { ApiError } from '@/api/errors';
 import type { EventDetail, EnumValue } from '@/api/types';
 import { participationLabel } from '@/features/labels';
 import { t } from '@/i18n';
-import { Button, Chip, Text, spacing } from '@/ui';
+import { Button, Text, spacing } from '@/ui';
+import { PickerRow, Segmented } from '@/ui/controls';
 
 import { useAnswerEvent } from './queries';
 import { buildAnswer, canSave, initialDraft, isContest, type Draft } from './participation';
@@ -17,40 +18,6 @@ export function answerErrorMessage(error: unknown): string {
     if (error.code === 'network_error') return t('common.offline');
   }
   return t('events.errors.generic');
-}
-
-function ChipGroup<T extends string | number>({
-  label,
-  options,
-  value,
-  onChange,
-  disabled,
-}: {
-  label: string;
-  options: { value: T; label: string }[];
-  value: T | null;
-  onChange: (value: T) => void;
-  disabled?: boolean;
-}) {
-  return (
-    <View style={{ gap: 6 }}>
-      <Text variant="muted">{label}</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: 8 }}
-      >
-        {options.map((o) => (
-          <Chip
-            key={String(o.value)}
-            label={o.label}
-            selected={value === o.value}
-            onPress={disabled ? undefined : () => onChange(o.value)}
-          />
-        ))}
-      </ScrollView>
-    </View>
-  );
 }
 
 const enumOptions = (values: EnumValue[]) => values.map((v) => ({ value: v.code, label: v.label }));
@@ -81,59 +48,100 @@ export function ParticipationForm({ event }: { event: EventDetail }) {
     if (answer) mutation.mutate(answer, { onSuccess: () => setSaved(true) });
   };
 
+  // The details of an answer only matter once registered: the arm, and the target face and
+  // session of a contest. Each is a native pull-down menu.
+  const details = draft.state === 'registered';
+  type Field = {
+    key: string;
+    label: string;
+    options: { value: string | number; label: string }[];
+    value: string | number | null;
+    onChange: (value: string | number) => void;
+  };
+  const fields: Field[] = [];
+  if (options.activities.length > 1) {
+    fields.push({
+      key: 'activity',
+      label: t('events.activity'),
+      options: enumOptions(options.activities),
+      value: draft.activity,
+      onChange: (v) => update({ activity: String(v) }),
+    });
+  }
+  if (contest && options.target_types?.length) {
+    fields.push({
+      key: 'target',
+      label: t('events.targetType'),
+      options: enumOptions(options.target_types),
+      value: draft.targetType,
+      onChange: (v) => update({ targetType: String(v) }),
+    });
+  }
+  if (contest && options.departures?.length) {
+    fields.push({
+      key: 'departure',
+      label: t('events.departure'),
+      options: options.departures.map((d) => ({
+        value: d,
+        label: t('events.departureN', { n: d }),
+      })),
+      value: draft.departure,
+      onChange: (v) => update({ departure: Number(v) }),
+    });
+  }
+
   return (
-    <View style={{ gap: spacing.md, paddingHorizontal: 16, paddingVertical: spacing.md }}>
-      {!event.can_participate ? <Text variant="muted">{t('events.restrictedBody')}</Text> : null}
+    <View style={{ paddingVertical: spacing.md, gap: spacing.md }}>
+      {!event.can_participate ? (
+        <Text variant="muted" style={{ paddingHorizontal: 16 }}>
+          {t('events.restrictedBody')}
+        </Text>
+      ) : null}
 
-      <ChipGroup
-        label={t('events.answer')}
-        options={options.states.map((s) => ({
-          value: s,
-          label: participationLabel(event.type, s),
-        }))}
-        value={draft.state}
-        onChange={(state) => update({ state })}
-        disabled={disabled}
-      />
-      {options.activities.length > 1 ? (
-        <ChipGroup
-          label={t('events.activity')}
-          options={enumOptions(options.activities)}
-          value={draft.activity}
-          onChange={(activity) => update({ activity })}
-          disabled={disabled}
-        />
-      ) : null}
-      {contest && options.target_types?.length ? (
-        <ChipGroup
-          label={t('events.targetType')}
-          options={enumOptions(options.target_types)}
-          value={draft.targetType}
-          onChange={(targetType) => update({ targetType })}
-          disabled={disabled}
-        />
-      ) : null}
-      {contest && options.departures?.length ? (
-        <ChipGroup
-          label={t('events.departure')}
-          options={options.departures.map((d) => ({
-            value: d,
-            label: t('events.departureN', { n: d }),
+      <View style={{ paddingHorizontal: 16 }}>
+        <Segmented
+          testID="answer-state"
+          options={options.states.map((s) => ({
+            value: s,
+            label: participationLabel(event.type, s),
           }))}
-          value={draft.departure}
-          onChange={(departure) => update({ departure })}
-          disabled={disabled}
+          value={draft.state}
+          onChange={(state) => update({ state })}
+          enabled={!disabled}
         />
+      </View>
+
+      {details && fields.length ? (
+        <View>
+          {fields.map((f, i) => (
+            <PickerRow
+              key={f.key}
+              testID={`answer-${f.key}`}
+              label={f.label}
+              options={f.options}
+              value={f.value}
+              onChange={f.onChange}
+              enabled={!disabled}
+              last={i === fields.length - 1}
+            />
+          ))}
+        </View>
       ) : null}
 
-      {mutation.error ? <Text variant="error">{answerErrorMessage(mutation.error)}</Text> : null}
-      {saved && !mutation.error ? <Text variant="muted">{t('events.saved')}</Text> : null}
-      <Button
-        title={t('events.save')}
-        onPress={submit}
-        loading={mutation.isPending}
-        disabled={!canSave(draft, event)}
-      />
+      <View style={{ paddingHorizontal: 16, gap: spacing.sm }}>
+        {mutation.error ? <Text variant="error">{answerErrorMessage(mutation.error)}</Text> : null}
+        <Button
+          title={t('events.save')}
+          onPress={submit}
+          loading={mutation.isPending}
+          disabled={!canSave(draft, event)}
+        />
+        {saved && !mutation.error ? (
+          <Text variant="muted" style={{ textAlign: 'center' }}>
+            {t('events.saved')}
+          </Text>
+        ) : null}
+      </View>
     </View>
   );
 }

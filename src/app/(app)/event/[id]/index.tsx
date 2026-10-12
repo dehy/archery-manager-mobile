@@ -1,6 +1,7 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 
 import { ApiError } from '@/api/errors';
+import { EventActions } from '@/features/events/EventActions';
 import { EventContent } from '@/features/events/EventContent';
 import { useEvent } from '@/features/events/queries';
 import { loadErrorMessage } from '@/features/errors';
@@ -14,7 +15,13 @@ export default function EventScreen() {
 
   return (
     <ScrollScreen refreshing={isRefetching} onRefresh={refetch}>
-      <Stack.Screen options={{ title: '', headerBackButtonDisplayMode: 'minimal' }} />
+      <Stack.Screen
+        options={{
+          title: '',
+          headerBackButtonDisplayMode: 'minimal',
+          headerRight: data ? () => <EventActions event={data} /> : undefined,
+        }}
+      />
       {isPending && !error ? <SkeletonRows count={5} /> : null}
       {status === 403 ? <Message title={t('events.forbidden')} /> : null}
       {status === 404 ? <Message title={t('events.notFound')} /> : null}

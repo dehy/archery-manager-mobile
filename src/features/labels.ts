@@ -20,3 +20,11 @@ export function participationLabel(type: EventType, state: ParticipationState | 
   const kind = CONTEST_TYPES.includes(type) ? 'contest' : 'training';
   return t(`labels.participation.${kind}.${state}`);
 }
+
+/** Short wording for an event row's status pill ("Inscrit", "Présent", "Pas de réponse"…). */
+export function participationShortLabel(type: EventType, state: ParticipationState | null): string {
+  if (!state) return t('labels.participationShort.none');
+  if (state !== 'registered') return t(`labels.participationShort.${state}`);
+  const kind = CONTEST_TYPES.includes(type) ? 'contest' : 'training';
+  return t(`labels.participationShort.registered.${kind}`);
+}

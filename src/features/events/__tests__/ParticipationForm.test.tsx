@@ -9,6 +9,35 @@ import { answerErrorMessage, ParticipationForm } from '../ParticipationForm';
 
 import { contestEvent, trainingEvent } from '@/test/events';
 
+// The native segmented control and pull-down menus render nothing under Jest: stand in with one
+// pressable per option, labelled like the native choice.
+jest.mock('@/ui/controls', () => {
+  const { createElement } = jest.requireActual('react');
+  const { Pressable, Text, View } = jest.requireActual('react-native');
+  const Choices = ({
+    label,
+    options,
+    onChange,
+  }: {
+    label?: string;
+    options: { value: string | number; label: string }[];
+    onChange: (value: string | number) => void;
+  }) =>
+    createElement(
+      View,
+      null,
+      label ? createElement(Text, null, label) : null,
+      options.map((o) =>
+        createElement(
+          Pressable,
+          { key: String(o.value), onPress: () => onChange(o.value) },
+          createElement(Text, null, o.label),
+        ),
+      ),
+    );
+  return { Segmented: Choices, PickerRow: Choices };
+});
+
 const wrap = (ui: ReactNode) =>
   render(
     <QueryClientProvider

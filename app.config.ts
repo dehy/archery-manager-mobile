@@ -39,6 +39,14 @@ const config: ExpoConfig = {
     'expo-router',
     'expo-secure-store',
     'expo-localization',
+    // "Ajouter au calendrier" only opens the system form: write-only access is enough (iOS 17+).
+    [
+      'expo-calendar',
+      {
+        writeOnlyAccess: true,
+        writeOnlyCalendarPermission: 'Quiver ajoute les événements du club à votre calendrier.',
+      },
+    ],
     // Xcode 27 / iOS 27 SDK refuses to launch apps without the UIScene life cycle. Opt-in on
     // SDK 57 (needs expo >= 57.0.23); SDK 58 enables it by default, then remove this entry.
     ['expo-build-properties', { ios: { enableSceneSupport: true } }],

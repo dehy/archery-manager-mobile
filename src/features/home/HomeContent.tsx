@@ -9,6 +9,7 @@ import { t } from '@/i18n';
 import { Message, Row, Section, Text, spacing } from '@/ui';
 
 import { formatResultTarget, formatSeason } from './format';
+import { NextEventCard } from './NextEventCard';
 
 type Home = HomeResponse;
 
@@ -25,15 +26,34 @@ export function HomeContent({ home, club }: { home: Home; club?: Club }) {
 }
 
 function Heading({ home, club }: { home: Exclude<Home, { state: 'blank_account' }>; club?: Club }) {
-  return (
-    <View style={{ paddingHorizontal: 16, paddingBottom: spacing.md, gap: spacing.sm }}>
-      <View style={{ gap: 2 }}>
-        <Text variant="title" style={{ fontSize: 22 }}>
-          {t('home.greeting', { name: home.licensee.firstname ?? '' }).trim()}
+  const greeting = t('home.greeting', { name: home.licensee.firstname ?? '' }).trim();
+  // With a club, the dashboard leads with its badge; the season lives in the account screen.
+  if (club) {
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.sm,
+          paddingHorizontal: 16,
+          paddingBottom: spacing.md,
+        }}
+      >
+        <View style={{ flexShrink: 1 }}>
+          <ClubBadge club={club} />
+        </View>
+        <Text variant="muted" style={{ marginLeft: 'auto' }} numberOfLines={1}>
+          {greeting}
         </Text>
-        <Text variant="muted">{t('home.season', { season: formatSeason(home.season) })}</Text>
       </View>
-      {club ? <ClubBadge club={club} /> : null}
+    );
+  }
+  return (
+    <View style={{ paddingHorizontal: 16, paddingBottom: spacing.md, gap: 2 }}>
+      <Text variant="title" style={{ fontSize: 22 }}>
+        {greeting}
+      </Text>
+      <Text variant="muted">{t('home.season', { season: formatSeason(home.season) })}</Text>
     </View>
   );
 }
@@ -65,15 +85,19 @@ function NoLicense({ home }: { home: Extract<Home, { state: 'no_license' }> }) {
 
 function Dashboard({ home, club }: { home: Extract<Home, { state: 'dashboard' }>; club?: Club }) {
   const router = useRouter();
+  // The card shows the next event the member is registered for; the list below, the others.
+  const next = home.next_events.find((e) => e.participation_state === 'registered');
+  const others = home.next_events.filter((e) => e !== next);
   return (
     <>
       <Heading home={home} club={club} />
+      <NextEventCard event={next} />
       <Section title={t('home.nextEvents')}>
-        {home.next_events.length === 0 ? (
+        {others.length === 0 ? (
           <Row title={t('home.noEvents')} last />
         ) : (
-          home.next_events.map((e, i) => (
-            <EventRow key={e.id} event={e} last={i === home.next_events.length - 1} />
+          others.map((e, i) => (
+            <EventRow key={e.id} event={e} withDate last={i === others.length - 1} />
           ))
         )}
       </Section>
