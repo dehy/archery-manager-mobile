@@ -4,8 +4,16 @@ import { create } from 'zustand';
 import { createApiClient, toTokens } from '@/api/client';
 import { getApiUrl } from '@/api/config';
 import type { MeResponse, Tokens, TokenResponse } from '@/api/types';
+import { useBrand } from '@/ui/brand';
 
-import { loadLicensee, loadTokens, saveLicensee, saveTokens } from './tokenStorage';
+import {
+  loadClubColor,
+  loadLicensee,
+  loadTokens,
+  saveClubColor,
+  saveLicensee,
+  saveTokens,
+} from './tokenStorage';
 
 type SessionState = {
   status: 'loading' | 'signedOut' | 'signedIn';
@@ -29,7 +37,12 @@ export const useSession = create<SessionState>((set, get) => ({
   season: null,
 
   async restore() {
-    const [tokens, licensee] = await Promise.all([loadTokens(), loadLicensee()]);
+    const [tokens, licensee, clubColor] = await Promise.all([
+      loadTokens(),
+      loadLicensee(),
+      loadClubColor(),
+    ]);
+    useBrand.setState({ clubColor: tokens ? clubColor : null });
     set({ tokens, licensee: tokens ? licensee : null, status: tokens ? 'signedIn' : 'signedOut' });
   },
 
@@ -56,7 +69,8 @@ export const useSession = create<SessionState>((set, get) => ({
   async signOut() {
     const refreshToken = get().tokens?.refreshToken;
     // Clear locally first: logging out must work offline too.
-    await Promise.all([saveTokens(null), saveLicensee(null)]);
+    await Promise.all([saveTokens(null), saveLicensee(null), saveClubColor(null)]);
+    useBrand.setState({ clubColor: null });
     set({ tokens: null, status: 'signedOut', licensee: null, season: null });
     if (!refreshToken) return;
     try {
@@ -80,6 +94,8 @@ export const api = createApiClient({
   },
   onSessionExpired: () => {
     saveLicensee(null).catch(() => {});
+    saveClubColor(null).catch(() => {});
+    useBrand.setState({ clubColor: null });
     useSession.setState({ status: 'signedOut', tokens: null, licensee: null, season: null });
   },
   getContextHeaders: () => {

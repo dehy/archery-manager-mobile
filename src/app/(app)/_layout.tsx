@@ -1,6 +1,8 @@
 import { Stack } from 'expo-router';
 
 import { useMe } from '@/features/account/queries';
+import { useClubColor } from '@/features/club/useClubColor';
+import { useStackColors } from '@/ui/nav';
 
 const pickerSheet = {
   presentation: 'formSheet',
@@ -12,9 +14,11 @@ const pickerSheet = {
 export default function AppLayout() {
   // Loads /me for the whole signed-in area and repairs a stale persisted licensee.
   useMe();
+  useClubColor();
+  const stackColors = useStackColors();
 
   return (
-    <Stack>
+    <Stack screenOptions={stackColors}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="licensee/[id]" />
       <Stack.Screen name="event/[id]/index" />

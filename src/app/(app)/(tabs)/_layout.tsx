@@ -1,9 +1,10 @@
 import { t } from '@/i18n';
-import { NativeTabs } from '@/ui/nav';
+import { NativeTabs, useTabBarColors } from '@/ui/nav';
 
 export default function TabsLayout() {
+  const colors = useTabBarColors();
   return (
-    <NativeTabs>
+    <NativeTabs {...colors}>
       <NativeTabs.Trigger name="(home)">
         <NativeTabs.Trigger.Icon sf={{ default: 'house', selected: 'house.fill' }} md="home" />
         <NativeTabs.Trigger.Label>{t('tabs.home')}</NativeTabs.Trigger.Label>

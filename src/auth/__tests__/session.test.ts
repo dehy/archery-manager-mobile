@@ -1,8 +1,9 @@
 import { ApiError } from '@/api/errors';
+import { useBrand } from '@/ui/brand';
 
 import { loginErrorMessage } from '../loginError';
 import { useSession } from '../session';
-import { loadTokens, saveTokens } from '../tokenStorage';
+import { loadClubColor, loadTokens, saveClubColor, saveTokens } from '../tokenStorage';
 
 const tokens = { accessToken: 'a', accessTokenExpiresAt: Date.now() + 1000, refreshToken: 'r' };
 
@@ -13,6 +14,13 @@ describe('token storage', () => {
     await saveTokens(null);
     expect(await loadTokens()).toBeNull();
   });
+
+  it('reads a stored club color back, and anything else as null', async () => {
+    await saveClubColor('#0a7d33');
+    expect(await loadClubColor()).toBe('#0a7d33');
+    await saveClubColor(null);
+    expect(await loadClubColor()).toBeNull();
+  });
 });
 
 describe('session store', () => {
@@ -22,6 +30,17 @@ describe('session store', () => {
     await saveTokens(tokens);
     await useSession.getState().restore();
     expect(useSession.getState().status).toBe('signedIn');
+  });
+
+  it('restores the club tint with the session, and drops it when signed out', async () => {
+    await saveTokens(tokens);
+    await saveClubColor('#1e3a8a');
+    await useSession.getState().restore();
+    expect(useBrand.getState().clubColor).toBe('#1e3a8a');
+
+    await saveTokens(null);
+    await useSession.getState().restore();
+    expect(useBrand.getState().clubColor).toBeNull();
   });
 
   it('is signed out when nothing is stored', async () => {

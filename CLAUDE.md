@@ -32,6 +32,7 @@ Install Expo-aware packages with `npx expo install`.
 
 Same screens, native chrome: `NativeTabs`, native stack headers with large titles (iOS), `Stack.SearchBar`, `formSheet` for pickers.
 iOS uses system colors and inset grouped lists; Android flat lists with ripple. Branch on `isIOS` from `@/ui` at the leaf, not in screens.
+Club tint: the selected licensee's `Club.primary_color` (`useBrand`, persisted by the session) is the iOS tint (contrast-fitted, `DynamicColorIOS`) and the seed of a Material 3 fidelity scheme on Android (`src/ui/clubColor.ts`); take colors from `useTheme()`, and header/tab colors from `useStackColors`/`useTabBarColors` in `@/ui/nav`.
 Design notes and decisions: `docs/design/phase-2.md`, `docs/design/phases-3-4.md`.
 
 ## Testing notes

@@ -1,6 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 
 import type { Tokens } from '@/api/types';
+import { normalizeHex } from '@/ui/clubColor';
 
 const KEY = 'auth.tokens';
 
@@ -37,4 +38,20 @@ export async function loadLicensee(): Promise<number | null> {
 export async function saveLicensee(id: number | null): Promise<void> {
   if (id) await SecureStore.setItemAsync(LICENSEE_KEY, String(id));
   else await SecureStore.deleteItemAsync(LICENSEE_KEY);
+}
+
+const CLUB_COLOR_KEY = 'context.clubColor';
+
+/** The last club color seen, so a cold start opens in the club's tint before `/club` answers. */
+export async function loadClubColor(): Promise<string | null> {
+  try {
+    return normalizeHex(await SecureStore.getItemAsync(CLUB_COLOR_KEY));
+  } catch {
+    return null;
+  }
+}
+
+export async function saveClubColor(color: string | null): Promise<void> {
+  if (color) await SecureStore.setItemAsync(CLUB_COLOR_KEY, color);
+  else await SecureStore.deleteItemAsync(CLUB_COLOR_KEY);
 }
