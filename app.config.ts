@@ -12,6 +12,12 @@ const config: ExpoConfig = {
   userInterfaceStyle: 'automatic',
   ios: {
     supportsTablet: true,
+    // Light / dark / tinted home-screen variants (iOS 18+); overrides the top-level `icon`.
+    icon: {
+      light: './assets/icon.png',
+      dark: './assets/ios-icon-dark.png',
+      tinted: './assets/ios-icon-tinted.png',
+    },
     bundleIdentifier: 'fr.karkwa.app',
     // Signing team (Arnaud DE MOUHY, individual membership). Not a secret: it is in every signed build.
     appleTeamId: 'E9GCQH28SQ',
@@ -28,9 +34,8 @@ const config: ExpoConfig = {
   android: {
     package: 'fr.karkwa.app',
     adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
+      backgroundColor: '#FBF3E4',
       foregroundImage: './assets/android-icon-foreground.png',
-      backgroundImage: './assets/android-icon-background.png',
       monochromeImage: './assets/android-icon-monochrome.png',
     },
     predictiveBackGestureEnabled: false,
@@ -40,6 +45,15 @@ const config: ExpoConfig = {
     'expo-router',
     'expo-secure-store',
     'expo-localization',
+    [
+      'expo-splash-screen',
+      {
+        image: './assets/splash-icon.png',
+        imageWidth: 160,
+        backgroundColor: '#FBF3E4',
+        dark: { image: './assets/splash-icon-dark.png', backgroundColor: '#3A2610' },
+      },
+    ],
     // "Ajouter au calendrier" only opens the system form: write-only access is enough (iOS 17+).
     [
       'expo-calendar',
