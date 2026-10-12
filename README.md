@@ -1,4 +1,4 @@
-# Quiver (codename) — Archery Manager mobile
+# Karkwa — Archery Manager mobile
 
 Member-facing React Native app (Expo) for [Archery Manager](../archery-manager). Club-admin features stay on the web app.
 The name, slug, scheme and bundle identifiers are temporary and live in `app.config.ts`.

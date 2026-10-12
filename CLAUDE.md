@@ -1,4 +1,4 @@
-# Quiver (codename) — Archery Manager mobile
+# Karkwa — Archery Manager mobile
 
 Expo (SDK 57, managed + EAS) / React Native / strict TypeScript. Backend lives in the sibling repo
 `../archery-manager` (Symfony, mobile API under `/api/v1`, see `src/Controller/Api/V1` and

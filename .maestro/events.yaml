@@ -1,5 +1,5 @@
 # Home dashboard, events calendar, event detail, RSVP and participants.
-appId: net.admds.quiver
+appId: fr.karkwa.app
 tags: [smoke, events]
 ---
 - runFlow: subflows/start.yaml

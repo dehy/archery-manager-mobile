@@ -1,5 +1,5 @@
 # Login errors, login, logout.
-appId: net.admds.quiver
+appId: fr.karkwa.app
 tags: [smoke, auth]
 ---
 - runFlow: subflows/start.yaml

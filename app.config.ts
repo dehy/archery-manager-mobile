@@ -1,23 +1,24 @@
 import type { ExpoConfig } from 'expo/config';
 
-// Temporary codename: rename name / slug / scheme / identifiers here only.
+// App identity: name / slug / scheme / identifiers live here only. The bundle ID and package
+// (reverse of karkwa.fr) can never change once the app is published on a store.
 const config: ExpoConfig = {
-  name: 'Quiver',
-  slug: 'quiver',
+  name: 'Karkwa',
+  slug: 'karkwa',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
-  scheme: 'quiver',
+  scheme: 'karkwa',
   userInterfaceStyle: 'automatic',
   ios: {
     supportsTablet: true,
-    bundleIdentifier: 'net.admds.quiver',
+    bundleIdentifier: 'fr.karkwa.app',
     // Signing team (Arnaud DE MOUHY, individual membership). Not a secret: it is in every signed build.
     appleTeamId: 'E9GCQH28SQ',
     infoPlist: {
       // Shown by iOS the first time the app reaches a server on the local network (dev backends).
       NSLocalNetworkUsageDescription:
-        'Quiver se connecte au serveur de votre club sur le réseau local pendant le développement.',
+        'Karkwa se connecte au serveur de votre club sur le réseau local pendant le développement.',
       // French first: system-provided UI (back button, VoiceOver hints) follows the device language
       // instead of falling back to English.
       CFBundleDevelopmentRegion: 'fr',
@@ -25,7 +26,7 @@ const config: ExpoConfig = {
     },
   },
   android: {
-    package: 'net.admds.quiver',
+    package: 'fr.karkwa.app',
     adaptiveIcon: {
       backgroundColor: '#E6F4FE',
       foregroundImage: './assets/android-icon-foreground.png',
@@ -44,7 +45,7 @@ const config: ExpoConfig = {
       'expo-calendar',
       {
         writeOnlyAccess: true,
-        writeOnlyCalendarPermission: 'Quiver ajoute les événements du club à votre calendrier.',
+        writeOnlyCalendarPermission: 'Karkwa ajoute les événements du club à votre calendrier.',
       },
     ],
     // Xcode 27 / iOS 27 SDK refuses to launch apps without the UIScene life cycle. Opt-in on

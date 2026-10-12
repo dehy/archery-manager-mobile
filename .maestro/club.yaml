@@ -1,5 +1,5 @@
 # Club directory: search, and a profile the member may open (one of the account's licensees).
-appId: net.admds.quiver
+appId: fr.karkwa.app
 tags: [smoke, club]
 ---
 - runFlow: subflows/start.yaml

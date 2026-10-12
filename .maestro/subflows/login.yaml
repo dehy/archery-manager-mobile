@@ -1,5 +1,5 @@
 # Log in from the login screen. Override the account with -e EMAIL=... -e PASSWORD=...
-appId: net.admds.quiver
+appId: fr.karkwa.app
 env:
   EMAIL: user1@ladg.com
   PASSWORD: user

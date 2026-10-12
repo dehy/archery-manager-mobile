@@ -1,5 +1,5 @@
 # Account: licensee switch, my results, contest results, practice advice, calendar feed.
-appId: net.admds.quiver
+appId: fr.karkwa.app
 tags: [smoke, account]
 ---
 - runFlow: subflows/start.yaml
