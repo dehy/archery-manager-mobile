@@ -1,0 +1,23 @@
+# Club directory: search, and a profile the member may open (one of the account's licensees).
+appId: net.admds.quiver
+tags: [smoke, club]
+---
+- runFlow: subflows/start.yaml
+- runFlow: subflows/login.yaml
+- tapOn: "Club"
+- extendedWaitUntil:
+    visible:
+      id: "member-.*"
+    timeout: 15000
+- takeScreenshot: club-01-directory
+- tapOn: "Rechercher un membre"
+- inputText: "Genev"
+- extendedWaitUntil:
+    visible: "Geneviève R..*"
+    timeout: 15000
+- takeScreenshot: club-02-search
+- tapOn: "Geneviève R..*"
+- extendedWaitUntil:
+    visible: "Licence"
+    timeout: 15000
+- takeScreenshot: club-03-profile

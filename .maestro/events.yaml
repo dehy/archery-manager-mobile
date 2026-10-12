@@ -1,0 +1,43 @@
+# Home dashboard, events calendar, event detail, RSVP and participants.
+appId: net.admds.quiver
+tags: [smoke, events]
+---
+- runFlow: subflows/start.yaml
+- runFlow: subflows/login.yaml
+- takeScreenshot: events-01-home
+
+- tapOn: "Événements"
+- extendedWaitUntil:
+    visible:
+      id: "event-.*"
+    timeout: 15000
+- takeScreenshot: events-02-calendar
+
+# Events on the dashboard belong to the member's groups, so they can be answered.
+- tapOn: "Accueil"
+- tapOn:
+    id: "event-.*"
+    index: 0
+- extendedWaitUntil:
+    visible: "Ma participation"
+    timeout: 15000
+- takeScreenshot: events-03-detail
+# Idempotent RSVP: answer "not going" (a no-op if a previous run already did), then "going",
+# which is always a change, so its save and confirmation are certain on every run.
+- tapOn: "Absent|Je n'y vais pas"
+- tapOn: "Enregistrer"
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn: "Présent|Je suis inscrit"
+- tapOn: "Enregistrer"
+- extendedWaitUntil:
+    visible: "Réponse enregistrée."
+    timeout: 15000
+- takeScreenshot: events-04-answered
+- scrollUntilVisible:
+    element:
+      id: "event-participants"
+    direction: DOWN
+- tapOn:
+    id: "event-participants"
+- takeScreenshot: events-05-participants

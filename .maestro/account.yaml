@@ -1,0 +1,100 @@
+# Account: licensee switch, my results, contest results, practice advice, calendar feed.
+appId: net.admds.quiver
+tags: [smoke, account]
+---
+- runFlow: subflows/start.yaml
+- runFlow: subflows/login.yaml
+
+# Switching licensee must load the new licensee's data (regression: screens used to hang).
+- tapOn: "Compte"
+- tapOn:
+    id: "row-licensee"
+- takeScreenshot: account-01-licensee-picker
+- tapOn: "Geneviève Roussel"
+- tapOn: "Accueil"
+- extendedWaitUntil:
+    visible: "Bonjour Geneviève"
+    timeout: 15000
+- takeScreenshot: account-02-home-other-licensee
+- tapOn: "Compte"
+- tapOn:
+    id: "row-licensee"
+- tapOn: "Gilles Renault"
+
+- tapOn:
+    id: "row-results"
+- extendedWaitUntil:
+    visible:
+      id: "result-.*"
+    timeout: 15000
+- takeScreenshot: account-03-results
+- tapOn:
+    id: "result-.*"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "contest-result-.*"
+    timeout: 15000
+- takeScreenshot: account-04-contest-results
+# Wait for each pop to finish: a tap during the transition animation is lost.
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: "BackButton"
+- extendedWaitUntil:
+    visible: "Mes résultats"
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: "BackButton"
+- extendedWaitUntil:
+    visible:
+      id: "row-advice"
+    timeout: 10000
+
+- tapOn:
+    id: "row-advice"
+- extendedWaitUntil:
+    visible:
+      id: "advice-.*"
+    timeout: 15000
+- takeScreenshot: account-05-advice-list
+- tapOn:
+    id: "advice-.*"
+    index: 0
+- extendedWaitUntil:
+    visible: "Pièces jointes"
+    timeout: 15000
+- takeScreenshot: account-06-advice
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: "BackButton"
+- extendedWaitUntil:
+    visible: "Afficher les archives"
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: "BackButton"
+- extendedWaitUntil:
+    visible:
+      id: "row-calendar"
+    timeout: 10000
+
+- tapOn:
+    id: "row-calendar"
+- tapOn: "Créer le lien"
+- extendedWaitUntil:
+    visible: "Lien actuel"
+    timeout: 15000
+- takeScreenshot: account-07-calendar
+- tapOn:
+    id: "calendar-revoke"
+- tapOn:
+    text: "Supprimer le lien"
+    above: "Annuler"
+- extendedWaitUntil:
+    visible: "Créer le lien"
+    timeout: 15000

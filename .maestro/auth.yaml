@@ -1,0 +1,30 @@
+# Login errors, login, logout.
+appId: net.admds.quiver
+tags: [smoke, auth]
+---
+- runFlow: subflows/start.yaml
+- tapOn:
+    id: "login-email"
+- inputText: user1@ladg.com
+- tapOn:
+    id: "login-password"
+- inputText: wrong-password
+- tapOn: "Se connecter"
+- extendedWaitUntil:
+    visible: "Identifiants incorrects."
+    timeout: 15000
+- takeScreenshot: auth-01-invalid-credentials
+- runFlow: subflows/start.yaml
+- runFlow: subflows/login.yaml
+- takeScreenshot: auth-02-home
+- tapOn: "Compte"
+- tapOn:
+    id: "row-logout"
+# Native confirmation: the alert's destructive button sits above "Annuler" (the row behind repeats the label).
+- tapOn:
+    text: "Se déconnecter"
+    above: "Annuler"
+- extendedWaitUntil:
+    visible: "Connexion"
+    timeout: 15000
+- takeScreenshot: auth-03-signed-out

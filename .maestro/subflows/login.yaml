@@ -1,0 +1,22 @@
+# Log in from the login screen. Override the account with -e EMAIL=... -e PASSWORD=...
+appId: net.admds.quiver
+env:
+  EMAIL: user1@ladg.com
+  PASSWORD: user
+---
+- tapOn:
+    id: "login-email"
+- inputText: ${EMAIL}
+- tapOn:
+    id: "login-password"
+- inputText: ${PASSWORD}
+- tapOn: "Se connecter"
+# iOS offers to save the password after a login (proof that autofill content types are right).
+- runFlow:
+    when:
+      visible: "Plus tard"
+    commands:
+      - tapOn: "Plus tard"
+- extendedWaitUntil:
+    visible: "Bonjour.*"
+    timeout: 20000

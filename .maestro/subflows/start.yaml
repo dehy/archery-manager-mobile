@@ -1,0 +1,25 @@
+# Fresh start of the dev build, loaded from Metro, signed out.
+appId: net.admds.quiver
+env:
+  # The dev client loads its JavaScript from this Metro server (encoded into the deep link below).
+  METRO_URL: http%3A%2F%2Flocalhost%3A8081
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- openLink: net.admds.quiver://expo-development-client/?url=${METRO_URL}
+# iOS asks before an app opens its own custom-scheme link from outside.
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+# First launch of a dev build after a state reset shows the developer menu onboarding.
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+- extendedWaitUntil:
+    visible: "Connexion"
+    timeout: 60000
