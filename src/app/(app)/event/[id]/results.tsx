@@ -13,19 +13,29 @@ import {
 } from '@/features/results/format';
 import { useContestResults } from '@/features/results/queries';
 import { t } from '@/i18n';
-import { Badge, Message, Row, ScrollScreen, Section, SkeletonRows, Text } from '@/ui';
+import {
+  Badge,
+  Message,
+  Row,
+  ScrollScreen,
+  Section,
+  SkeletonRows,
+  Text,
+  usePullToRefresh,
+} from '@/ui';
 
 export default function ContestResultsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const event = useEvent(Number(id));
-  const { data, error, isPending, isRefetching, refetch } = useContestResults(Number(id));
+  const { data, error, isPending, refetch } = useContestResults(Number(id));
+  const pull = usePullToRefresh(refetch);
   const groups = useMemo(() => groupByCategory(data ?? []), [data]);
   // 404 here means the event exists but is not a contest.
   const status = error instanceof ApiError ? error.status : null;
 
   return (
-    <ScrollScreen refreshing={isRefetching} onRefresh={refetch}>
+    <ScrollScreen refreshing={pull.refreshing} onRefresh={pull.onRefresh}>
       <Stack.Screen
         options={{ title: t('events.results'), headerBackButtonDisplayMode: 'minimal' }}
       />

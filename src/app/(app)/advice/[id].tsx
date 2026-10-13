@@ -8,17 +8,28 @@ import { loadErrorMessage } from '@/features/errors';
 import { useOpenAttachment } from '@/features/files/useOpenAttachment';
 import { formatSize } from '@/features/licensee/format';
 import { t } from '@/i18n';
-import { Badge, Message, Row, ScrollScreen, Section, SkeletonRows, Text, spacing } from '@/ui';
+import {
+  Badge,
+  Message,
+  Row,
+  ScrollScreen,
+  Section,
+  SkeletonRows,
+  Text,
+  spacing,
+  usePullToRefresh,
+} from '@/ui';
 import { HtmlContent } from '@/ui/html/HtmlContent';
 
 export default function AdviceScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data, error, isPending, isRefetching, refetch } = useAdvice(Number(id));
+  const { data, error, isPending, refetch } = useAdvice(Number(id));
+  const pull = usePullToRefresh(refetch);
   const { open, downloading } = useOpenAttachment();
   const status = error instanceof ApiError ? error.status : null;
 
   return (
-    <ScrollScreen refreshing={isRefetching} onRefresh={refetch}>
+    <ScrollScreen refreshing={pull.refreshing} onRefresh={pull.onRefresh}>
       <Stack.Screen options={{ title: '', headerBackButtonDisplayMode: 'minimal' }} />
       {isPending && !error ? <SkeletonRows count={5} /> : null}
       {status === 404 ? <Message title={t('advice.notFound')} /> : null}

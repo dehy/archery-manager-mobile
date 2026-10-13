@@ -6,15 +6,16 @@ import { EventContent } from '@/features/events/EventContent';
 import { useEvent } from '@/features/events/queries';
 import { loadErrorMessage } from '@/features/errors';
 import { t } from '@/i18n';
-import { Message, ScrollScreen, SkeletonRows } from '@/ui';
+import { Message, ScrollScreen, SkeletonRows, usePullToRefresh } from '@/ui';
 
 export default function EventScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data, error, isPending, isRefetching, refetch } = useEvent(Number(id));
+  const { data, error, isPending, refetch } = useEvent(Number(id));
+  const pull = usePullToRefresh(refetch);
   const status = error instanceof ApiError ? error.status : null;
 
   return (
-    <ScrollScreen refreshing={isRefetching} onRefresh={refetch}>
+    <ScrollScreen refreshing={pull.refreshing} onRefresh={pull.onRefresh}>
       <Stack.Screen
         options={{
           title: '',

@@ -10,7 +10,16 @@ import { useClub, useMembers, type GroupFilter } from '@/features/club/queries';
 import { isForbidden, loadErrorMessage } from '@/features/errors';
 import { useDebouncedValue } from '@/features/useDebouncedValue';
 import { t } from '@/i18n';
-import { Avatar, GroupedItem, Message, Row, SkeletonRows, Text, useTheme } from '@/ui';
+import {
+  Avatar,
+  GroupedItem,
+  Message,
+  Row,
+  SkeletonRows,
+  Text,
+  usePullToRefresh,
+  useTheme,
+} from '@/ui';
 
 export default function ClubScreen() {
   const router = useRouter();
@@ -21,6 +30,7 @@ export default function ClubScreen() {
 
   const club = useClub();
   const members = useMembers(group, search);
+  const pull = usePullToRefresh(club.refetch, members.refetch);
 
   const items = useMemo(() => members.data?.pages.flatMap((p) => p.data) ?? [], [members.data]);
   const first = members.data?.pages[0];
@@ -125,11 +135,8 @@ export default function ClubScreen() {
         onEndReached={() => {
           if (members.hasNextPage && !members.isFetchingNextPage) members.fetchNextPage();
         }}
-        refreshing={club.isRefetching || (members.isRefetching && !members.isFetchingNextPage)}
-        onRefresh={() => {
-          club.refetch();
-          members.refetch();
-        }}
+        refreshing={pull.refreshing}
+        onRefresh={pull.onRefresh}
         keyboardDismissMode="on-drag"
       />
     </>

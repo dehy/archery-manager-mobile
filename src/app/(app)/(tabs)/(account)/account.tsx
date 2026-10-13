@@ -7,12 +7,13 @@ import { loadErrorMessage } from '@/features/errors';
 import { formatSeason } from '@/features/home/format';
 import { useSession } from '@/auth/session';
 import { t } from '@/i18n';
-import { Message, Row, ScrollScreen, Section, Text } from '@/ui';
+import { Message, Row, ScrollScreen, Section, Text, usePullToRefresh } from '@/ui';
 
 export default function AccountScreen() {
   const router = useRouter();
   const signOut = useSession((s) => s.signOut);
   const me = useMe();
+  const pull = usePullToRefresh(me.refetch);
 
   if (me.error && !me.data) {
     return (
@@ -40,7 +41,7 @@ export default function AccountScreen() {
     ]);
 
   return (
-    <ScrollScreen refreshing={me.isRefetching} onRefresh={me.refetch}>
+    <ScrollScreen refreshing={pull.refreshing} onRefresh={pull.onRefresh}>
       {data ? (
         <>
           <Section>

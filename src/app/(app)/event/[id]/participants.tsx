@@ -6,7 +6,7 @@ import { loadErrorMessage } from '@/features/errors';
 import { useEvent, useParticipants } from '@/features/events/queries';
 import { participationLabel } from '@/features/labels';
 import { t } from '@/i18n';
-import { Message, Row, ScrollScreen, Section, SkeletonRows } from '@/ui';
+import { Message, Row, ScrollScreen, Section, SkeletonRows, usePullToRefresh } from '@/ui';
 
 const ORDER = ['registered', 'interested', 'not_going'] as const;
 
@@ -14,7 +14,8 @@ export default function ParticipantsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const event = useEvent(Number(id));
-  const { data, error, isPending, isRefetching, refetch } = useParticipants(Number(id));
+  const { data, error, isPending, refetch } = useParticipants(Number(id));
+  const pull = usePullToRefresh(refetch);
 
   const groups = useMemo(() => {
     const byState = new Map<string, EventParticipant[]>();
@@ -30,7 +31,7 @@ export default function ParticipantsScreen() {
   const type = event.data?.type ?? 'other';
 
   return (
-    <ScrollScreen refreshing={isRefetching} onRefresh={refetch}>
+    <ScrollScreen refreshing={pull.refreshing} onRefresh={pull.onRefresh}>
       <Stack.Screen
         options={{ title: t('events.participants'), headerBackButtonDisplayMode: 'minimal' }}
       />

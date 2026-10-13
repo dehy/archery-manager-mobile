@@ -6,15 +6,16 @@ import { adviceByline, adviceCaption } from '@/features/advice/format';
 import { useAdvices } from '@/features/advice/queries';
 import { isForbidden, loadErrorMessage } from '@/features/errors';
 import { t } from '@/i18n';
-import { Chip, Message, Row, ScrollScreen, Section, SkeletonRows } from '@/ui';
+import { Chip, Message, Row, ScrollScreen, Section, SkeletonRows, usePullToRefresh } from '@/ui';
 
 export default function AdviceListScreen() {
   const router = useRouter();
   const [archived, setArchived] = useState(false);
-  const { data, error, isPending, isRefetching, refetch } = useAdvices(archived);
+  const { data, error, isPending, refetch } = useAdvices(archived);
+  const pull = usePullToRefresh(refetch);
 
   return (
-    <ScrollScreen refreshing={isRefetching} onRefresh={refetch}>
+    <ScrollScreen refreshing={pull.refreshing} onRefresh={pull.onRefresh}>
       <Stack.Screen
         options={{ title: t('advice.title'), headerBackButtonDisplayMode: 'minimal' }}
       />

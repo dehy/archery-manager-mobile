@@ -5,17 +5,18 @@ import { loadErrorMessage } from '@/features/errors';
 import { LicenseeContent } from '@/features/licensee/LicenseeContent';
 import { useLicensee } from '@/features/licensee/queries';
 import { t } from '@/i18n';
-import { Message, ScrollScreen, SkeletonRows } from '@/ui';
+import { Message, ScrollScreen, SkeletonRows, usePullToRefresh } from '@/ui';
 
 export default function LicenseeScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data, error, isPending, isRefetching, refetch } = useLicensee(Number(id));
+  const { data, error, isPending, refetch } = useLicensee(Number(id));
+  const pull = usePullToRefresh(refetch);
 
   // 403 and 404 are expected answers (no club in common, unknown id): no retry button.
   const status = error instanceof ApiError ? error.status : null;
 
   return (
-    <ScrollScreen refreshing={isRefetching} onRefresh={refetch}>
+    <ScrollScreen refreshing={pull.refreshing} onRefresh={pull.onRefresh}>
       <Stack.Screen
         options={{ title: data?.display_name ?? '', headerBackButtonDisplayMode: 'minimal' }}
       />

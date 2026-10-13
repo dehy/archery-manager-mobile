@@ -16,7 +16,17 @@ import {
 } from '@/features/results/format';
 import { useMyResults } from '@/features/results/queries';
 import { t } from '@/i18n';
-import { BarChart, Chip, Message, Row, ScrollScreen, Section, SkeletonRows, spacing } from '@/ui';
+import {
+  BarChart,
+  Chip,
+  Message,
+  Row,
+  ScrollScreen,
+  Section,
+  SkeletonRows,
+  spacing,
+  usePullToRefresh,
+} from '@/ui';
 
 const shortDate = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
 const dayOf = (iso: string) => {
@@ -26,7 +36,8 @@ const dayOf = (iso: string) => {
 
 export default function MyResultsScreen() {
   const router = useRouter();
-  const { data, error, isPending, isRefetching, refetch } = useMyResults();
+  const { data, error, isPending, refetch } = useMyResults();
+  const pull = usePullToRefresh(refetch);
   const seasons = useMemo(() => seasonsOf(data ?? []), [data]);
   const [picked, setPicked] = useState<number | null>(null);
   const season = picked ?? seasons[0] ?? null;
@@ -60,7 +71,7 @@ export default function MyResultsScreen() {
   );
 
   return (
-    <ScrollScreen refreshing={isRefetching} onRefresh={refetch}>
+    <ScrollScreen refreshing={pull.refreshing} onRefresh={pull.onRefresh}>
       <Stack.Screen
         options={{ title: t('results.title'), headerBackButtonDisplayMode: 'minimal' }}
       />
