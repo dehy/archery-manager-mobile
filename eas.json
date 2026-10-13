@@ -14,5 +14,11 @@
       "autoIncrement": true,
       "env": { "EXPO_PUBLIC_API_URL": "https://app.karkwa.fr" }
     }
+  },
+  "submit": {
+    "production": {
+      "ios": { "ascAppId": "6822074681" },
+      "android": { "track": "alpha", "releaseStatus": "draft" }
+    }
   }
 }

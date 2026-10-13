@@ -5,7 +5,7 @@ import type { ExpoConfig } from 'expo/config';
 const config: ExpoConfig = {
   name: 'Karkwa',
   slug: 'karkwa',
-  version: '1.0.0',
+  version: '0.1.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
   scheme: 'karkwa',
@@ -19,6 +19,8 @@ const config: ExpoConfig = {
       tinted: './assets/ios-icon-tinted.png',
     },
     bundleIdentifier: 'fr.karkwa.app',
+    // Only HTTPS and system crypto: answers TestFlight's export compliance question for every build.
+    config: { usesNonExemptEncryption: false },
     // Signing team (Arnaud DE MOUHY, individual membership). Not a secret: it is in every signed build.
     appleTeamId: 'E9GCQH28SQ',
     infoPlist: {
@@ -41,6 +43,9 @@ const config: ExpoConfig = {
     predictiveBackGestureEnabled: false,
   },
   web: { favicon: './assets/favicon.png' },
+  // EAS project (builds, credentials, submissions). Not a secret.
+  owner: 'dehy',
+  extra: { eas: { projectId: 'd447fb93-2d9f-416a-a51e-c534588fac7c' } },
   plugins: [
     'expo-router',
     'expo-secure-store',
