@@ -36,3 +36,4 @@ export function useTabBarColors() {
     labelStyle: { default: { color: theme.muted }, selected: { color: theme.text } },
   };
 }
+export { HeaderToolbar, HeaderView, type HeaderAction } from './HeaderToolbar';

@@ -4,7 +4,7 @@ import { View, type ColorValue } from 'react-native';
 import { isIOS, useTheme } from './theme';
 
 /** The app's icons: an SF Symbol on iOS, its Material Symbol counterpart on Android. */
-const ICONS = {
+export const ICONS = {
   calendar: { ios: 'calendar', android: 'calendar_today' },
   calendarAdd: { ios: 'calendar.badge.plus', android: 'calendar_add_on' },
   clock: { ios: 'clock', android: 'schedule' },
@@ -20,6 +20,8 @@ const ICONS = {
   eye: { ios: 'eye', android: 'visibility' },
   eyeSlash: { ios: 'eye.slash', android: 'visibility_off' },
   alert: { ios: 'exclamationmark.circle', android: 'error' },
+  chevronLeft: { ios: 'chevron.left', android: 'chevron_left' },
+  chevronRight: { ios: 'chevron.right', android: 'chevron_right' },
 } as const;
 
 export type IconName = keyof typeof ICONS;

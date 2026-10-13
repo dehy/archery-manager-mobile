@@ -1,16 +1,19 @@
 import { useClub } from '@/features/club/queries';
 import { HomeContent } from '@/features/home/HomeContent';
+import { LicenseeButton } from '@/features/home/LicenseeButton';
 import { useHome } from '@/features/home/useHome';
 import { loadErrorMessage } from '@/features/errors';
 import { t } from '@/i18n';
-import { Message, ScrollScreen, SkeletonRows } from '@/ui';
+import { Message, ScrollScreen, SkeletonRows, usePullToRefresh } from '@/ui';
 
 export default function HomeScreen() {
-  const { data, error, isPending, isRefetching, refetch } = useHome();
+  const { data, error, isPending, refetch } = useHome();
+  const pull = usePullToRefresh(refetch);
   const club = useClub();
 
   return (
-    <ScrollScreen refreshing={isRefetching} onRefresh={refetch}>
+    <ScrollScreen refreshing={pull.refreshing} onRefresh={pull.onRefresh}>
+      <LicenseeButton />
       {isPending && !error ? <SkeletonRows /> : null}
       {error ? (
         <Message
