@@ -5,10 +5,11 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 
 import { useSession } from '@/auth/session';
+import { Sentry } from '@/observability/sentry';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
   const status = useSession((s) => s.status);
   const restore = useSession((s) => s.restore);
@@ -40,3 +41,5 @@ export default function RootLayout() {
     </QueryClientProvider>
   );
 }
+
+export default Sentry.wrap(RootLayout);

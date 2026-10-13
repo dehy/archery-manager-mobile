@@ -65,6 +65,11 @@ const config: ExpoConfig = {
     // Xcode 27 / iOS 27 SDK refuses to launch apps without the UIScene life cycle. Opt-in on
     // SDK 57 (needs expo >= 57.0.23); SDK 58 enables it by default, then remove this entry.
     ['expo-build-properties', { ios: { enableSceneSupport: true } }],
+    // Uploads source maps and debug symbols on release builds (needs SENTRY_AUTH_TOKEN).
+    [
+      '@sentry/react-native/expo',
+      { url: 'https://sentry.io/', project: 'karkwa', organization: 'flying-pingu' },
+    ],
   ],
   experiments: { typedRoutes: false },
 };
