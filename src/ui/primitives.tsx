@@ -5,9 +5,7 @@ import {
   RefreshControl,
   ScrollView,
   Text as RNText,
-  TextInput,
   View,
-  type TextInputProps,
   type TextProps,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -70,33 +68,6 @@ export function Button({
         <RNText style={{ color: theme.onPrimary, fontWeight: '600', fontSize: 16 }}>{title}</RNText>
       )}
     </Pressable>
-  );
-}
-
-export function TextField({
-  label,
-  error,
-  ...props
-}: TextInputProps & { label: string; error?: string }) {
-  const theme = useTheme();
-  return (
-    <View style={{ gap: spacing.xs }}>
-      <Text variant="muted">{label}</Text>
-      <TextInput
-        accessibilityLabel={label}
-        placeholderTextColor={theme.muted}
-        {...props}
-        style={{
-          borderWidth: 1,
-          borderColor: error ? theme.danger : theme.border,
-          borderRadius: 8,
-          padding: spacing.md,
-          color: theme.text,
-          fontSize: 16,
-        }}
-      />
-      {error ? <Text variant="error">{error}</Text> : null}
-    </View>
   );
 }
 

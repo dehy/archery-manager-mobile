@@ -17,6 +17,9 @@ const ICONS = {
   club: { ios: 'flag', android: 'flag' },
   groups: { ios: 'person.3', android: 'groups' },
   document: { ios: 'doc.text', android: 'description' },
+  eye: { ios: 'eye', android: 'visibility' },
+  eyeSlash: { ios: 'eye.slash', android: 'visibility_off' },
+  alert: { ios: 'exclamationmark.circle', android: 'error' },
 } as const;
 
 export type IconName = keyof typeof ICONS;

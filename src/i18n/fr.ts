@@ -16,6 +16,12 @@ export const fr = {
     submit: 'Se connecter',
     emailInvalid: 'Adresse e-mail invalide',
     passwordRequired: 'Mot de passe requis',
+    tagline: 'La vie de votre club, dans votre poche.',
+    showPassword: 'Afficher le mot de passe',
+    hidePassword: 'Masquer le mot de passe',
+    forgotPassword: 'Mot de passe oublié ?',
+    noAccount: 'Pas encore de compte ?',
+    createAccount: 'Créer un compte',
   },
   errors: {
     invalid_credentials: 'Identifiants incorrects.',
