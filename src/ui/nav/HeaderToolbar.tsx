@@ -47,16 +47,25 @@ export function HeaderToolbar({
       </Stack.Toolbar>
     );
   }
+  // A hidden Compose item still takes its slot (and shifts the title), so leave it out entirely.
+  const shown = actions.filter((a) => !a.hidden);
+  if (shown.length === 0) return null;
   return (
     <Stack.Toolbar placement={placement}>
-      {actions.map((a) => (
-        <Stack.Toolbar.View key={a.label} hidden={a.hidden}>
+      {shown.map((a) => (
+        <Stack.Toolbar.View key={a.label}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={a.label}
             onPress={a.onPress}
             android_ripple={{ color: theme.tint, borderless: true, radius: 24 }}
-            style={{ minWidth: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}
+            style={{
+              minWidth: 48,
+              height: 48,
+              paddingHorizontal: a.icon ? 0 : 12,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
             {a.icon ? (
               <Icon name={a.icon} size={24} color={theme.text} />
